@@ -97,7 +97,9 @@ export class AiService {
     );
   }
 
-  async summarizeMeetingNotes(dto: SummarizeMeetingNotesDto): Promise<AiResult> {
+  async summarizeMeetingNotes(
+    dto: SummarizeMeetingNotesDto,
+  ): Promise<AiResult> {
     return this.complete(
       'You summarize meeting transcripts into concise notes with clear action items. Respond in markdown with "Summary" and "Action Items" sections.',
       `Summarize the following meeting transcript:\n\n${dto.transcript}`,
@@ -155,7 +157,8 @@ export class AiService {
       () =>
         [
           `## Ticket Summary: ${dto.subject}`,
-          dto.conversation.split(/\n+/).slice(0, 3).join(' ') || 'No conversation content provided.',
+          dto.conversation.split(/\n+/).slice(0, 3).join(' ') ||
+            'No conversation content provided.',
           '',
           '**Suggested next step:** Follow up with the customer to confirm resolution.',
         ].join('\n'),

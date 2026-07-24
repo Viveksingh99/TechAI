@@ -38,10 +38,16 @@ export class RecruitmentService {
     });
   }
 
-  async findAllJobPostings(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllJobPostings(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.JobPostingWhereInput = {
       deletedAt: null,
-      ...buildSearchFilter(pagination.search, ['title', 'department', 'location']),
+      ...buildSearchFilter(pagination.search, [
+        'title',
+        'department',
+        'location',
+      ]),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -86,7 +92,10 @@ export class RecruitmentService {
 
   async removeJobPosting(id: string): Promise<{ message: string }> {
     await this.ensureJobPostingExists(id);
-    await this.prisma.jobPosting.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.jobPosting.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Job posting deleted successfully' };
   }
@@ -180,7 +189,11 @@ export class RecruitmentService {
   listInterviews(applicationId: string) {
     return this.prisma.interview.findMany({
       where: { applicationId },
-      include: { interviewer: { select: { id: true, firstName: true, lastName: true, email: true } } },
+      include: {
+        interviewer: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+      },
       orderBy: { scheduledAt: 'asc' },
     });
   }
@@ -211,10 +224,14 @@ export class RecruitmentService {
   async createOffer(applicationId: string, dto: CreateOfferDto) {
     await this.ensureApplicationExists(applicationId);
 
-    const existing = await this.prisma.offer.findUnique({ where: { applicationId } });
+    const existing = await this.prisma.offer.findUnique({
+      where: { applicationId },
+    });
 
     if (existing) {
-      throw new NotFoundException('An offer already exists for this application');
+      throw new NotFoundException(
+        'An offer already exists for this application',
+      );
     }
 
     return this.prisma.offer.create({
@@ -252,7 +269,9 @@ export class RecruitmentService {
   // ---------------------------------------------------------------------
 
   private async ensureJobPostingExists(id: string): Promise<void> {
-    const jobPosting = await this.prisma.jobPosting.findFirst({ where: { id, deletedAt: null } });
+    const jobPosting = await this.prisma.jobPosting.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!jobPosting) {
       throw new NotFoundException('Job posting not found');
@@ -260,7 +279,9 @@ export class RecruitmentService {
   }
 
   private async ensureApplicationExists(id: string): Promise<void> {
-    const application = await this.prisma.application.findUnique({ where: { id } });
+    const application = await this.prisma.application.findUnique({
+      where: { id },
+    });
 
     if (!application) {
       throw new NotFoundException('Application not found');
@@ -268,7 +289,9 @@ export class RecruitmentService {
   }
 
   private async ensureExists(
-    delegate: { findUnique: (args: { where: { id: string } }) => Promise<unknown> },
+    delegate: {
+      findUnique: (args: { where: { id: string } }) => Promise<unknown>;
+    },
     id: string,
     label: string,
   ): Promise<void> {
@@ -281,7 +304,9 @@ export class RecruitmentService {
 
   private async generateUniqueSlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.jobPosting.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.jobPosting.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }

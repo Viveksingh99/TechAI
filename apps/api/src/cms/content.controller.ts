@@ -77,7 +77,10 @@ export class ContentController {
   @Patch('testimonials/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...CMS_ROLES)
-  updateTestimonial(@Param('id') id: string, @Body() dto: UpdateTestimonialDto) {
+  updateTestimonial(
+    @Param('id') id: string,
+    @Body() dto: UpdateTestimonialDto,
+  ) {
     return this.contentService.updateTestimonial(id, dto);
   }
 
@@ -110,7 +113,10 @@ export class ContentController {
   @Patch('portfolio-items/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...CMS_ROLES)
-  updatePortfolioItem(@Param('id') id: string, @Body() dto: UpdatePortfolioItemDto) {
+  updatePortfolioItem(
+    @Param('id') id: string,
+    @Body() dto: UpdatePortfolioItemDto,
+  ) {
     return this.contentService.updatePortfolioItem(id, dto);
   }
 

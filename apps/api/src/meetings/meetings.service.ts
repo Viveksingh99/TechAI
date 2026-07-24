@@ -71,7 +71,12 @@ export class MeetingsService {
       ...(filter.projectId ? { projectId: filter.projectId } : {}),
       ...(filter.organizerId ? { organizerId: filter.organizerId } : {}),
       ...(filter.userId
-        ? { OR: [{ organizerId: filter.userId }, { attendees: { some: { userId: filter.userId } } }] }
+        ? {
+            OR: [
+              { organizerId: filter.userId },
+              { attendees: { some: { userId: filter.userId } } },
+            ],
+          }
         : {}),
     };
 
@@ -152,7 +157,11 @@ export class MeetingsService {
     return attendee;
   }
 
-  async respondToInvite(meetingId: string, userId: string, dto: RespondInviteDto) {
+  async respondToInvite(
+    meetingId: string,
+    userId: string,
+    dto: RespondInviteDto,
+  ) {
     const attendee = await this.prisma.meetingAttendee.findUnique({
       where: { meetingId_userId: { meetingId, userId } },
     });
@@ -167,7 +176,10 @@ export class MeetingsService {
     });
   }
 
-  async removeAttendee(meetingId: string, userId: string): Promise<{ message: string }> {
+  async removeAttendee(
+    meetingId: string,
+    userId: string,
+  ): Promise<{ message: string }> {
     await this.ensureExists(meetingId);
 
     await this.prisma.meetingAttendee.delete({
@@ -191,12 +203,17 @@ export class MeetingsService {
         content: dto.content,
         actionItems: dto.actionItems as Prisma.InputJsonValue,
       },
-      update: { content: dto.content, actionItems: dto.actionItems as Prisma.InputJsonValue },
+      update: {
+        content: dto.content,
+        actionItems: dto.actionItems as Prisma.InputJsonValue,
+      },
     });
   }
 
   async getNotes(meetingId: string) {
-    const notes = await this.prisma.meetingNotes.findUnique({ where: { meetingId } });
+    const notes = await this.prisma.meetingNotes.findUnique({
+      where: { meetingId },
+    });
 
     if (!notes) {
       throw new NotFoundException('No notes recorded for this meeting yet');

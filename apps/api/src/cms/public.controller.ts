@@ -88,7 +88,10 @@ export class PublicController {
   @Patch('consultations/:id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...CMS_ROLES)
-  updateBookingStatus(@Param('id') id: string, @Body() dto: UpdateBookingStatusDto) {
+  updateBookingStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateBookingStatusDto,
+  ) {
     return this.publicService.updateBookingStatus(id, dto);
   }
 }

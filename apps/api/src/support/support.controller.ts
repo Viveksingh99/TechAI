@@ -37,7 +37,11 @@ export class SupportController {
     @Query('raisedById') raisedById?: string,
     @Query('assignedToId') assignedToId?: string,
   ) {
-    return this.supportService.findAll(pagination, { status, raisedById, assignedToId });
+    return this.supportService.findAll(pagination, {
+      status,
+      raisedById,
+      assignedToId,
+    });
   }
 
   @Get(':id')

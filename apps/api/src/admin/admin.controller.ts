@@ -58,13 +58,19 @@ export class AdminController {
 
   @Patch('settings/:key')
   @Roles(RoleName.SUPER_ADMIN)
-  upsertSystemSetting(@Param('key') key: string, @Body() dto: UpdateSystemSettingDto) {
+  upsertSystemSetting(
+    @Param('key') key: string,
+    @Body() dto: UpdateSystemSettingDto,
+  ) {
     return this.adminService.upsertSystemSetting(key, dto);
   }
 
   @Post('api-keys')
   @Roles(RoleName.SUPER_ADMIN)
-  createApiKey(@Body() dto: CreateApiKeyDto, @CurrentUser('id') userId: string) {
+  createApiKey(
+    @Body() dto: CreateApiKeyDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.adminService.createApiKey(dto, userId);
   }
 

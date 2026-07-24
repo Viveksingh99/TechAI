@@ -95,7 +95,10 @@ export class HrController {
   // --- Leave requests ------------------------------------------------------------
 
   @Post('leaves/:employeeId')
-  requestLeave(@Param('employeeId') employeeId: string, @Body() dto: CreateLeaveDto) {
+  requestLeave(
+    @Param('employeeId') employeeId: string,
+    @Body() dto: CreateLeaveDto,
+  ) {
     return this.hrService.requestLeave(employeeId, dto);
   }
 

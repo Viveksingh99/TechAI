@@ -1,7 +1,14 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { InterviewStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { CreateInterviewDto } from './create-interview.dto';
 
 export class UpdateInterviewDto extends PartialType(CreateInterviewDto) {

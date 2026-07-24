@@ -37,7 +37,10 @@ export class BlogController {
   @Post('blog-posts')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...CMS_ROLES)
-  createPost(@Body() dto: CreateBlogPostDto, @CurrentUser('id') userId: string) {
+  createPost(
+    @Body() dto: CreateBlogPostDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.blogService.createPost(dto, userId);
   }
 

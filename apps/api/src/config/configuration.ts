@@ -88,7 +88,8 @@ export default (): AppConfig => ({
   },
   uploads: {
     driver:
-      (process.env.UPLOADS_DRIVER as 'cloudinary' | 's3' | 'local' | undefined) ?? 'local',
+      (process.env.UPLOADS_DRIVER as
+        'cloudinary' | 's3' | 'local' | undefined) ?? 'local',
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY,

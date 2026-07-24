@@ -49,7 +49,11 @@ export class SupportService {
 
   async findAll(
     pagination: PaginationDto,
-    filter: { status?: TicketStatus; raisedById?: string; assignedToId?: string },
+    filter: {
+      status?: TicketStatus;
+      raisedById?: string;
+      assignedToId?: string;
+    },
   ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.TicketWhereInput = {
       deletedAt: null,
@@ -95,7 +99,11 @@ export class SupportService {
   async update(id: string, dto: UpdateTicketDto) {
     await this.ensureExists(id);
 
-    return this.prisma.ticket.update({ where: { id }, data: dto, include: TICKET_INCLUDE });
+    return this.prisma.ticket.update({
+      where: { id },
+      data: dto,
+      include: TICKET_INCLUDE,
+    });
   }
 
   async assign(id: string, dto: AssignTicketDto) {
@@ -125,7 +133,8 @@ export class SupportService {
       data: {
         status: dto.status,
         resolvedAt:
-          dto.status === TicketStatus.RESOLVED || dto.status === TicketStatus.CLOSED
+          dto.status === TicketStatus.RESOLVED ||
+          dto.status === TicketStatus.CLOSED
             ? new Date()
             : undefined,
       },
@@ -144,7 +153,10 @@ export class SupportService {
 
   async remove(id: string): Promise<{ message: string }> {
     await this.ensureExists(id);
-    await this.prisma.ticket.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.ticket.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Ticket deleted successfully' };
   }
@@ -153,15 +165,25 @@ export class SupportService {
   // Messages
   // ---------------------------------------------------------------------
 
-  async addMessage(ticketId: string, dto: CreateTicketMessageDto, senderId: string) {
+  async addMessage(
+    ticketId: string,
+    dto: CreateTicketMessageDto,
+    senderId: string,
+  ) {
     const ticket = await this.ensureExists(ticketId);
 
     const message = await this.prisma.ticketMessage.create({
-      data: { ticketId, senderId, message: dto.message, attachmentUrl: dto.attachmentUrl },
+      data: {
+        ticketId,
+        senderId,
+        message: dto.message,
+        attachmentUrl: dto.attachmentUrl,
+      },
       include: { sender: { select: USER_SELECT } },
     });
 
-    const notifyUserId = senderId === ticket.raisedById ? ticket.assignedToId : ticket.raisedById;
+    const notifyUserId =
+      senderId === ticket.raisedById ? ticket.assignedToId : ticket.raisedById;
 
     if (notifyUserId) {
       await this.notifications.create({
@@ -186,7 +208,9 @@ export class SupportService {
   }
 
   private async ensureExists(id: string) {
-    const ticket = await this.prisma.ticket.findFirst({ where: { id, deletedAt: null } });
+    const ticket = await this.prisma.ticket.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!ticket) {
       throw new NotFoundException('Ticket not found');

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { AttendanceStatus, LeaveStatus, Prisma } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
@@ -40,10 +44,16 @@ export class HrService {
   // Employees
   // ---------------------------------------------------------------------
 
-  async findAllEmployees(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllEmployees(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.EmployeeWhereInput = {
       deletedAt: null,
-      ...buildSearchFilter(pagination.search, ['employeeCode', 'department', 'designation']),
+      ...buildSearchFilter(pagination.search, [
+        'employeeCode',
+        'department',
+        'designation',
+      ]),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -86,7 +96,9 @@ export class HrService {
         designation: dto.designation,
         employmentType: dto.employmentType,
         status: dto.status,
-        dateOfJoining: dto.dateOfJoining ? new Date(dto.dateOfJoining) : undefined,
+        dateOfJoining: dto.dateOfJoining
+          ? new Date(dto.dateOfJoining)
+          : undefined,
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
         gender: dto.gender,
         address: dto.address,
@@ -97,8 +109,12 @@ export class HrService {
         bankAccountNumber: dto.bankAccountNumber,
         bankIfsc: dto.bankIfsc,
         panNumber: dto.panNumber,
-        resignationDate: dto.resignationDate ? new Date(dto.resignationDate) : undefined,
-        terminationDate: dto.terminationDate ? new Date(dto.terminationDate) : undefined,
+        resignationDate: dto.resignationDate
+          ? new Date(dto.resignationDate)
+          : undefined,
+        terminationDate: dto.terminationDate
+          ? new Date(dto.terminationDate)
+          : undefined,
       },
       include: EMPLOYEE_INCLUDE,
     });
@@ -106,7 +122,10 @@ export class HrService {
 
   async removeEmployee(id: string): Promise<{ message: string }> {
     await this.ensureEmployeeExists(id);
-    await this.prisma.employee.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.employee.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Employee removed successfully' };
   }
@@ -135,7 +154,11 @@ export class HrService {
         status: AttendanceStatus.PRESENT,
         notes: dto.notes,
       },
-      update: { checkIn: new Date(), status: AttendanceStatus.PRESENT, notes: dto.notes },
+      update: {
+        checkIn: new Date(),
+        status: AttendanceStatus.PRESENT,
+        notes: dto.notes,
+      },
     });
   }
 
@@ -151,7 +174,8 @@ export class HrService {
     }
 
     const checkOut = new Date();
-    const workHours = (checkOut.getTime() - attendance.checkIn.getTime()) / 3_600_000;
+    const workHours =
+      (checkOut.getTime() - attendance.checkIn.getTime()) / 3_600_000;
 
     return this.prisma.attendance.update({
       where: { id: attendance.id },
@@ -206,7 +230,9 @@ export class HrService {
   // ---------------------------------------------------------------------
 
   async requestLeave(employeeId: string, dto: CreateLeaveDto) {
-    const leaveType = await this.prisma.leaveType.findUnique({ where: { id: dto.leaveTypeId } });
+    const leaveType = await this.prisma.leaveType.findUnique({
+      where: { id: dto.leaveTypeId },
+    });
 
     if (!leaveType) {
       throw new NotFoundException('Leave type not found');
@@ -302,7 +328,12 @@ export class HrService {
   listHolidays(year?: number) {
     return this.prisma.holiday.findMany({
       where: year
-        ? { date: { gte: new Date(`${year}-01-01`), lt: new Date(`${year + 1}-01-01`) } }
+        ? {
+            date: {
+              gte: new Date(`${year}-01-01`),
+              lt: new Date(`${year + 1}-01-01`),
+            },
+          }
         : undefined,
       orderBy: { date: 'asc' },
     });
@@ -398,14 +429,22 @@ export class HrService {
   }
 
   async updatePerformanceReview(id: string, dto: UpdatePerformanceReviewDto) {
-    await this.ensureExists(this.prisma.performanceReview, id, 'Performance review');
+    await this.ensureExists(
+      this.prisma.performanceReview,
+      id,
+      'Performance review',
+    );
 
     return this.prisma.performanceReview.update({
       where: { id },
       data: {
         ...dto,
-        reviewPeriodStart: dto.reviewPeriodStart ? new Date(dto.reviewPeriodStart) : undefined,
-        reviewPeriodEnd: dto.reviewPeriodEnd ? new Date(dto.reviewPeriodEnd) : undefined,
+        reviewPeriodStart: dto.reviewPeriodStart
+          ? new Date(dto.reviewPeriodStart)
+          : undefined,
+        reviewPeriodEnd: dto.reviewPeriodEnd
+          ? new Date(dto.reviewPeriodEnd)
+          : undefined,
       },
     });
   }
@@ -420,7 +459,9 @@ export class HrService {
   }
 
   private async ensureEmployeeExists(id: string): Promise<void> {
-    const employee = await this.prisma.employee.findFirst({ where: { id, deletedAt: null } });
+    const employee = await this.prisma.employee.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!employee) {
       throw new NotFoundException('Employee not found');
@@ -436,7 +477,9 @@ export class HrService {
   }
 
   private async ensureExists(
-    delegate: { findUnique: (args: { where: { id: string } }) => Promise<unknown> },
+    delegate: {
+      findUnique: (args: { where: { id: string } }) => Promise<unknown>;
+    },
     id: string,
     label: string,
   ): Promise<void> {

@@ -172,12 +172,11 @@ describe('AuthService', () => {
 
       const result = await authService.login(dto);
 
-      /* eslint-disable @typescript-eslint/no-unsafe-assignment */
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: existingUser.id },
         data: { lastLoginAt: expect.any(Date) },
       });
-      /* eslint-enable @typescript-eslint/no-unsafe-assignment */
+
       expect(result.accessToken).toBe('signed.jwt.token');
       expect(result.user.email).toBe(dto.email);
     });

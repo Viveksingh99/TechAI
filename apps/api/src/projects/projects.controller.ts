@@ -35,7 +35,11 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { UpdateTimeEntryDto } from './dto/update-time-entry.dto';
 import { ProjectsService } from './projects.service';
 
-const MANAGE_ROLES = [RoleName.SUPER_ADMIN, RoleName.ADMIN, RoleName.PROJECT_MANAGER];
+const MANAGE_ROLES = [
+  RoleName.SUPER_ADMIN,
+  RoleName.ADMIN,
+  RoleName.PROJECT_MANAGER,
+];
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -122,7 +126,10 @@ export class ProjectsController {
   @Delete(':id/milestones/:milestoneId')
   @UseGuards(RolesGuard)
   @Roles(...MANAGE_ROLES)
-  removeMilestone(@Param('id') id: string, @Param('milestoneId') milestoneId: string) {
+  removeMilestone(
+    @Param('id') id: string,
+    @Param('milestoneId') milestoneId: string,
+  ) {
     return this.projectsService.removeMilestone(id, milestoneId);
   }
 
@@ -320,7 +327,10 @@ export class ProjectsController {
   }
 
   @Delete(':id/documents/:documentId')
-  removeDocument(@Param('id') id: string, @Param('documentId') documentId: string) {
+  removeDocument(
+    @Param('id') id: string,
+    @Param('documentId') documentId: string,
+  ) {
     return this.projectsService.removeDocument(id, documentId);
   }
 }

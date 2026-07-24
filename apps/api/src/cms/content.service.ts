@@ -116,7 +116,10 @@ export class ContentService {
 
   async removePortfolioItem(id: string): Promise<{ message: string }> {
     await this.ensureExists(this.prisma.portfolioItem, id, 'Portfolio item');
-    await this.prisma.portfolioItem.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.portfolioItem.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Portfolio item deleted successfully' };
   }
@@ -124,7 +127,10 @@ export class ContentService {
   upsertCaseStudy(portfolioItemId: string, dto: UpsertCaseStudyDto) {
     return this.prisma.caseStudy.upsert({
       where: { portfolioItemId },
-      create: { portfolioItemId, ...dto } as Prisma.CaseStudyUncheckedCreateInput,
+      create: {
+        portfolioItemId,
+        ...dto,
+      } as Prisma.CaseStudyUncheckedCreateInput,
       update: dto as Prisma.CaseStudyUncheckedUpdateInput,
     });
   }
@@ -195,7 +201,9 @@ export class ContentService {
   // ---------------------------------------------------------------------
 
   private async ensureExists(
-    delegate: { findUnique: (args: { where: { id: string } }) => Promise<unknown> },
+    delegate: {
+      findUnique: (args: { where: { id: string } }) => Promise<unknown>;
+    },
     id: string,
     label: string,
   ): Promise<void> {
@@ -208,14 +216,18 @@ export class ContentService {
 
   private async generateUniquePortfolioSlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.portfolioItem.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.portfolioItem.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }
 
   private async generateUniqueServiceSlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.service.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.service.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }

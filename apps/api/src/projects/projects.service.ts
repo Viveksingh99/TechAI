@@ -32,8 +32,22 @@ const PROJECT_INCLUDE = {
   manager: {
     select: { id: true, firstName: true, lastName: true, email: true },
   },
-  members: { include: { user: { select: { id: true, firstName: true, lastName: true, email: true, avatar: true } } } },
-  _count: { select: { tasks: true, bugs: true, milestones: true, sprints: true } },
+  members: {
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          avatar: true,
+        },
+      },
+    },
+  },
+  _count: {
+    select: { tasks: true, bugs: true, milestones: true, sprints: true },
+  },
 } satisfies Prisma.ProjectInclude;
 
 @Injectable()
@@ -148,7 +162,17 @@ export class ProjectsService {
       where: { projectId_userId: { projectId, userId: dto.userId } },
       create: { projectId, userId: dto.userId, role: dto.role },
       update: { role: dto.role },
-      include: { user: { select: { id: true, firstName: true, lastName: true, email: true, avatar: true } } },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
     });
   }
 
@@ -157,11 +181,24 @@ export class ProjectsService {
 
     return this.prisma.projectMember.findMany({
       where: { projectId },
-      include: { user: { select: { id: true, firstName: true, lastName: true, email: true, avatar: true } } },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
     });
   }
 
-  async removeMember(projectId: string, userId: string): Promise<{ message: string }> {
+  async removeMember(
+    projectId: string,
+    userId: string,
+  ): Promise<{ message: string }> {
     await this.ensureProjectExists(projectId);
 
     await this.prisma.projectMember.delete({
@@ -199,7 +236,11 @@ export class ProjectsService {
     });
   }
 
-  async updateMilestone(projectId: string, id: string, dto: UpdateMilestoneDto) {
+  async updateMilestone(
+    projectId: string,
+    id: string,
+    dto: UpdateMilestoneDto,
+  ) {
     await this.ensureMilestoneExists(projectId, id);
 
     return this.prisma.milestone.update({
@@ -215,7 +256,10 @@ export class ProjectsService {
     });
   }
 
-  async removeMilestone(projectId: string, id: string): Promise<{ message: string }> {
+  async removeMilestone(
+    projectId: string,
+    id: string,
+  ): Promise<{ message: string }> {
     await this.ensureMilestoneExists(projectId, id);
     await this.prisma.milestone.delete({ where: { id } });
 
@@ -266,7 +310,10 @@ export class ProjectsService {
     });
   }
 
-  async removeSprint(projectId: string, id: string): Promise<{ message: string }> {
+  async removeSprint(
+    projectId: string,
+    id: string,
+  ): Promise<{ message: string }> {
     await this.ensureSprintExists(projectId, id);
     await this.prisma.sprint.delete({ where: { id } });
 
@@ -297,7 +344,12 @@ export class ProjectsService {
       include: this.taskInclude(),
     });
 
-    await this.logActivity(projectId, reporterId, 'TASK_CREATED', `Task "${task.title}" created`);
+    await this.logActivity(
+      projectId,
+      reporterId,
+      'TASK_CREATED',
+      `Task "${task.title}" created`,
+    );
 
     return task;
   }
@@ -320,13 +372,22 @@ export class ProjectsService {
     return this.ensureTaskExists(projectId, id, {
       ...this.taskInclude(),
       comments: {
-        include: { author: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
+        include: {
+          author: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
+        },
         orderBy: { createdAt: 'asc' },
       },
     });
   }
 
-  async updateTask(projectId: string, id: string, dto: UpdateTaskDto, userId?: string) {
+  async updateTask(
+    projectId: string,
+    id: string,
+    dto: UpdateTaskDto,
+    userId?: string,
+  ) {
     await this.ensureTaskExists(projectId, id);
 
     const task = await this.prisma.task.update({
@@ -347,12 +408,22 @@ export class ProjectsService {
       include: this.taskInclude(),
     });
 
-    await this.logActivity(projectId, userId, 'TASK_UPDATED', `Task "${task.title}" updated`);
+    await this.logActivity(
+      projectId,
+      userId,
+      'TASK_UPDATED',
+      `Task "${task.title}" updated`,
+    );
 
     return task;
   }
 
-  async updateTaskStatus(projectId: string, id: string, dto: UpdateTaskStatusDto, userId?: string) {
+  async updateTaskStatus(
+    projectId: string,
+    id: string,
+    dto: UpdateTaskStatusDto,
+    userId?: string,
+  ) {
     await this.ensureTaskExists(projectId, id);
 
     const task = await this.prisma.task.update({
@@ -371,7 +442,10 @@ export class ProjectsService {
     return task;
   }
 
-  async removeTask(projectId: string, id: string): Promise<{ message: string }> {
+  async removeTask(
+    projectId: string,
+    id: string,
+  ): Promise<{ message: string }> {
     await this.ensureTaskExists(projectId, id);
 
     await this.prisma.task.update({
@@ -386,12 +460,21 @@ export class ProjectsService {
   // Task comments
   // ---------------------------------------------------------------------
 
-  async addComment(projectId: string, taskId: string, dto: CreateCommentDto, authorId: string) {
+  async addComment(
+    projectId: string,
+    taskId: string,
+    dto: CreateCommentDto,
+    authorId: string,
+  ) {
     await this.ensureTaskExists(projectId, taskId);
 
     return this.prisma.taskComment.create({
       data: { taskId, authorId, content: dto.content },
-      include: { author: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
+      include: {
+        author: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
+        },
+      },
     });
   }
 
@@ -400,15 +483,25 @@ export class ProjectsService {
 
     return this.prisma.taskComment.findMany({
       where: { taskId },
-      include: { author: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
+      include: {
+        author: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
+        },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
 
-  async removeComment(projectId: string, taskId: string, commentId: string): Promise<{ message: string }> {
+  async removeComment(
+    projectId: string,
+    taskId: string,
+    commentId: string,
+  ): Promise<{ message: string }> {
     await this.ensureTaskExists(projectId, taskId);
 
-    const comment = await this.prisma.taskComment.findFirst({ where: { id: commentId, taskId } });
+    const comment = await this.prisma.taskComment.findFirst({
+      where: { id: commentId, taskId },
+    });
 
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -487,7 +580,11 @@ export class ProjectsService {
   // Time entries
   // ---------------------------------------------------------------------
 
-  async createTimeEntry(projectId: string, dto: CreateTimeEntryDto, userId: string) {
+  async createTimeEntry(
+    projectId: string,
+    dto: CreateTimeEntryDto,
+    userId: string,
+  ) {
     await this.ensureProjectExists(projectId);
 
     const startTime = new Date(dto.startTime);
@@ -515,17 +612,25 @@ export class ProjectsService {
     return this.prisma.timeEntry.findMany({
       where: { projectId, ...(userId ? { userId } : {}) },
       include: {
-        user: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+        user: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
+        },
         task: { select: { id: true, title: true } },
       },
       orderBy: { startTime: 'desc' },
     });
   }
 
-  async updateTimeEntry(projectId: string, id: string, dto: UpdateTimeEntryDto) {
+  async updateTimeEntry(
+    projectId: string,
+    id: string,
+    dto: UpdateTimeEntryDto,
+  ) {
     const existing = await this.ensureTimeEntryExists(projectId, id);
 
-    const startTime = dto.startTime ? new Date(dto.startTime) : existing.startTime;
+    const startTime = dto.startTime
+      ? new Date(dto.startTime)
+      : existing.startTime;
     const endTime = dto.endTime ? new Date(dto.endTime) : existing.endTime;
 
     return this.prisma.timeEntry.update({
@@ -543,7 +648,10 @@ export class ProjectsService {
     });
   }
 
-  async removeTimeEntry(projectId: string, id: string): Promise<{ message: string }> {
+  async removeTimeEntry(
+    projectId: string,
+    id: string,
+  ): Promise<{ message: string }> {
     await this.ensureTimeEntryExists(projectId, id);
     await this.prisma.timeEntry.delete({ where: { id } });
 
@@ -562,7 +670,11 @@ export class ProjectsService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.activityLog.findMany({
         where,
-        include: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
+        include: {
+          user: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
+        },
         skip: pagination.skip,
         take: pagination.take,
         orderBy: { createdAt: 'desc' },
@@ -588,7 +700,11 @@ export class ProjectsService {
   // Documents
   // ---------------------------------------------------------------------
 
-  async addDocument(projectId: string, dto: CreateDocumentDto, uploadedById?: string) {
+  async addDocument(
+    projectId: string,
+    dto: CreateDocumentDto,
+    uploadedById?: string,
+  ) {
     await this.ensureProjectExists(projectId);
 
     return this.prisma.projectDocument.create({
@@ -612,8 +728,13 @@ export class ProjectsService {
     });
   }
 
-  async removeDocument(projectId: string, id: string): Promise<{ message: string }> {
-    const document = await this.prisma.projectDocument.findFirst({ where: { id, projectId } });
+  async removeDocument(
+    projectId: string,
+    id: string,
+  ): Promise<{ message: string }> {
+    const document = await this.prisma.projectDocument.findFirst({
+      where: { id, projectId },
+    });
 
     if (!document) {
       throw new NotFoundException('Document not found');
@@ -630,8 +751,12 @@ export class ProjectsService {
 
   private taskInclude() {
     return {
-      assignee: { select: { id: true, firstName: true, lastName: true, avatar: true } },
-      reporter: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+      assignee: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
+      reporter: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
       sprint: { select: { id: true, name: true } },
       _count: { select: { comments: true, bugs: true, timeEntries: true } },
     } satisfies Prisma.TaskInclude;
@@ -639,14 +764,20 @@ export class ProjectsService {
 
   private bugInclude() {
     return {
-      assignee: { select: { id: true, firstName: true, lastName: true, avatar: true } },
-      reportedBy: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+      assignee: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
+      reportedBy: {
+        select: { id: true, firstName: true, lastName: true, avatar: true },
+      },
       task: { select: { id: true, title: true } },
     } satisfies Prisma.BugInclude;
   }
 
   private async ensureProjectExists(id: string): Promise<void> {
-    const project = await this.prisma.project.findFirst({ where: { id, deletedAt: null } });
+    const project = await this.prisma.project.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!project) {
       throw new NotFoundException('Project not found');
@@ -654,7 +785,9 @@ export class ProjectsService {
   }
 
   private async ensureMilestoneExists(projectId: string, id: string) {
-    const milestone = await this.prisma.milestone.findFirst({ where: { id, projectId } });
+    const milestone = await this.prisma.milestone.findFirst({
+      where: { id, projectId },
+    });
 
     if (!milestone) {
       throw new NotFoundException('Milestone not found');
@@ -664,7 +797,9 @@ export class ProjectsService {
   }
 
   private async ensureSprintExists(projectId: string, id: string) {
-    const sprint = await this.prisma.sprint.findFirst({ where: { id, projectId } });
+    const sprint = await this.prisma.sprint.findFirst({
+      where: { id, projectId },
+    });
 
     if (!sprint) {
       throw new NotFoundException('Sprint not found');
@@ -690,7 +825,11 @@ export class ProjectsService {
     return task;
   }
 
-  private async ensureBugExists(projectId: string, id: string, include?: Prisma.BugInclude) {
+  private async ensureBugExists(
+    projectId: string,
+    id: string,
+    include?: Prisma.BugInclude,
+  ) {
     const bug = await this.prisma.bug.findFirst({
       where: { id, projectId },
       include,
@@ -704,7 +843,9 @@ export class ProjectsService {
   }
 
   private async ensureTimeEntryExists(projectId: string, id: string) {
-    const entry = await this.prisma.timeEntry.findFirst({ where: { id, projectId } });
+    const entry = await this.prisma.timeEntry.findFirst({
+      where: { id, projectId },
+    });
 
     if (!entry) {
       throw new NotFoundException('Time entry not found');
@@ -715,7 +856,9 @@ export class ProjectsService {
 
   private async generateUniqueSlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.project.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.project.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }

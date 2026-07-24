@@ -19,7 +19,9 @@ import { UpdatePageDto } from './dto/update-page.dto';
 import { UpsertSeoDto } from './dto/upsert-seo.dto';
 
 const BLOG_POST_INCLUDE = {
-  author: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+  author: {
+    select: { id: true, firstName: true, lastName: true, avatar: true },
+  },
   category: true,
   tags: true,
   seo: true,
@@ -48,7 +50,9 @@ export class BlogService {
         isFeatured: dto.isFeatured,
         status: dto.status,
         publishedAt: dto.status === 'PUBLISHED' ? new Date() : undefined,
-        tags: dto.tagIds ? { connect: dto.tagIds.map((id) => ({ id })) } : undefined,
+        tags: dto.tagIds
+          ? { connect: dto.tagIds.map((id) => ({ id })) }
+          : undefined,
       },
       include: BLOG_POST_INCLUDE,
     });
@@ -125,8 +129,12 @@ export class BlogService {
         isFeatured: dto.isFeatured,
         status: dto.status,
         publishedAt:
-          dto.status === 'PUBLISHED' && existing.status !== 'PUBLISHED' ? new Date() : undefined,
-        tags: dto.tagIds ? { set: dto.tagIds.map((tagId) => ({ id: tagId })) } : undefined,
+          dto.status === 'PUBLISHED' && existing.status !== 'PUBLISHED'
+            ? new Date()
+            : undefined,
+        tags: dto.tagIds
+          ? { set: dto.tagIds.map((tagId) => ({ id: tagId })) }
+          : undefined,
       },
       include: BLOG_POST_INCLUDE,
     });
@@ -134,7 +142,10 @@ export class BlogService {
 
   async removePost(id: string): Promise<{ message: string }> {
     await this.ensurePostExists(id);
-    await this.prisma.blogPost.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.blogPost.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Blog post deleted successfully' };
   }
@@ -201,7 +212,9 @@ export class BlogService {
     return this.prisma.media.create({ data: { ...dto, uploadedById } });
   }
 
-  async listMedia(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async listMedia(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.MediaWhereInput = {};
 
     const [data, total] = await this.prisma.$transaction([
@@ -235,7 +248,10 @@ export class BlogService {
   }
 
   listPages() {
-    return this.prisma.page.findMany({ where: { deletedAt: null }, orderBy: { title: 'asc' } });
+    return this.prisma.page.findMany({
+      where: { deletedAt: null },
+      orderBy: { title: 'asc' },
+    });
   }
 
   async findPageBySlug(slug: string) {
@@ -262,7 +278,10 @@ export class BlogService {
 
   async removePage(id: string): Promise<{ message: string }> {
     await this.ensureExists(this.prisma.page, id, 'Page');
-    await this.prisma.page.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.page.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Page deleted successfully' };
   }
@@ -292,7 +311,9 @@ export class BlogService {
   // ---------------------------------------------------------------------
 
   private async ensurePostExists(id: string) {
-    const post = await this.prisma.blogPost.findFirst({ where: { id, deletedAt: null } });
+    const post = await this.prisma.blogPost.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!post) {
       throw new NotFoundException('Blog post not found');
@@ -302,7 +323,9 @@ export class BlogService {
   }
 
   private async ensureExists(
-    delegate: { findUnique: (args: { where: { id: string } }) => Promise<unknown> },
+    delegate: {
+      findUnique: (args: { where: { id: string } }) => Promise<unknown>;
+    },
     id: string,
     label: string,
   ): Promise<void> {
@@ -315,21 +338,27 @@ export class BlogService {
 
   private async generateUniqueSlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.blogPost.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.blogPost.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }
 
   private async generateUniqueCategorySlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.category.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.category.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }
 
   private async generateUniquePageSlug(source: string): Promise<string> {
     const base = slugify(source);
-    const existing = await this.prisma.page.findUnique({ where: { slug: base } });
+    const existing = await this.prisma.page.findUnique({
+      where: { slug: base },
+    });
 
     return existing ? slugify(source, true) : base;
   }

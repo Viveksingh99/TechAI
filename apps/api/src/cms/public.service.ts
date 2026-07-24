@@ -34,7 +34,9 @@ export class PublicService {
     return { message: 'Unsubscribed successfully' };
   }
 
-  async listNewsletterSubscribers(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async listNewsletterSubscribers(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.NewsletterSubscriberWhereInput = {};
 
     const [data, total] = await this.prisma.$transaction([
@@ -58,7 +60,9 @@ export class PublicService {
     return this.prisma.contactSubmission.create({ data: dto });
   }
 
-  async listContactSubmissions(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async listContactSubmissions(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.ContactSubmissionWhereInput = {};
 
     const [data, total] = await this.prisma.$transaction([
@@ -75,7 +79,9 @@ export class PublicService {
   }
 
   async updateContactSubmissionStatus(id: string, status: SubmissionStatus) {
-    const submission = await this.prisma.contactSubmission.findUnique({ where: { id } });
+    const submission = await this.prisma.contactSubmission.findUnique({
+      where: { id },
+    });
 
     if (!submission) {
       throw new NotFoundException('Contact submission not found');
@@ -97,13 +103,17 @@ export class PublicService {
     });
   }
 
-  async listConsultationBookings(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async listConsultationBookings(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.ConsultationBookingWhereInput = {};
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.consultationBooking.findMany({
         where,
-        include: { assignedTo: { select: { id: true, firstName: true, lastName: true } } },
+        include: {
+          assignedTo: { select: { id: true, firstName: true, lastName: true } },
+        },
         skip: pagination.skip,
         take: pagination.take,
         orderBy: { preferredDate: 'asc' },
@@ -115,7 +125,9 @@ export class PublicService {
   }
 
   async updateBookingStatus(id: string, dto: UpdateBookingStatusDto) {
-    const booking = await this.prisma.consultationBooking.findUnique({ where: { id } });
+    const booking = await this.prisma.consultationBooking.findUnique({
+      where: { id },
+    });
 
     if (!booking) {
       throw new NotFoundException('Consultation booking not found');

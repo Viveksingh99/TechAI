@@ -18,7 +18,9 @@ export class ClientsService {
       this.prisma.project.findMany({
         where: { clientId, deletedAt: null },
         include: {
-          manager: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+          manager: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
           milestones: { orderBy: { order: 'asc' } },
           _count: { select: { tasks: true, bugs: true } },
         },
@@ -33,7 +35,13 @@ export class ClientsService {
         where: {
           clientId,
           deletedAt: null,
-          status: { in: [InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE] },
+          status: {
+            in: [
+              InvoiceStatus.SENT,
+              InvoiceStatus.PARTIALLY_PAID,
+              InvoiceStatus.OVERDUE,
+            ],
+          },
         },
         _sum: { total: true, amountPaid: true },
       }),
@@ -45,32 +53,45 @@ export class ClientsService {
       this.prisma.meeting.findMany({
         where: {
           startTime: { gte: new Date() },
-          OR: [{ organizerId: clientId }, { attendees: { some: { userId: clientId } } }],
+          OR: [
+            { organizerId: clientId },
+            { attendees: { some: { userId: clientId } } },
+          ],
         },
         orderBy: { startTime: 'asc' },
         take: 5,
       }),
-      this.prisma.subscription.findMany({ where: { clientId }, orderBy: { createdAt: 'desc' } }),
+      this.prisma.subscription.findMany({
+        where: { clientId },
+        orderBy: { createdAt: 'desc' },
+      }),
     ]);
 
     const allMilestones = projects.flatMap((project) =>
-      project.milestones.map((milestone) => ({ ...milestone, projectName: project.name })),
+      project.milestones.map((milestone) => ({
+        ...milestone,
+        projectName: project.name,
+      })),
     );
 
     const outstanding =
-      Number(openInvoicesAgg._sum.total ?? 0) - Number(openInvoicesAgg._sum.amountPaid ?? 0);
+      Number(openInvoicesAgg._sum.total ?? 0) -
+      Number(openInvoicesAgg._sum.amountPaid ?? 0);
 
     return {
       projects: {
         total: projects.length,
-        active: projects.filter((p) => p.status === 'IN_PROGRESS' || p.status === 'PLANNING')
-          .length,
+        active: projects.filter(
+          (p) => p.status === 'IN_PROGRESS' || p.status === 'PLANNING',
+        ).length,
         items: projects,
       },
       milestones: {
         upcoming: allMilestones
           .filter((m) => !m.isCompleted)
-          .sort((a, b) => (a.dueDate?.getTime() ?? 0) - (b.dueDate?.getTime() ?? 0))
+          .sort(
+            (a, b) => (a.dueDate?.getTime() ?? 0) - (b.dueDate?.getTime() ?? 0),
+          )
           .slice(0, 5),
       },
       invoices: {

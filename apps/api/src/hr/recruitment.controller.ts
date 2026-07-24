@@ -35,7 +35,10 @@ export class RecruitmentController {
   @Post('job-postings')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...HR_ROLES)
-  createJobPosting(@Body() dto: CreateJobPostingDto, @CurrentUser('id') userId: string) {
+  createJobPosting(
+    @Body() dto: CreateJobPostingDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.recruitmentService.createJobPosting(dto, userId);
   }
 
@@ -80,7 +83,10 @@ export class RecruitmentController {
     @Query('jobPostingId') jobPostingId?: string,
     @Query('status') status?: ApplicationStatus,
   ) {
-    return this.recruitmentService.findAllApplications(pagination, { jobPostingId, status });
+    return this.recruitmentService.findAllApplications(pagination, {
+      jobPostingId,
+      status,
+    });
   }
 
   @Get('applications/:id')

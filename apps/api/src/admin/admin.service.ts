@@ -36,7 +36,10 @@ export class AdminService {
       }),
       this.prisma.task.count({ where: { deletedAt: null } }),
       this.prisma.ticket.count({
-        where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS', 'REOPENED'] } },
+        where: {
+          deletedAt: null,
+          status: { in: ['OPEN', 'IN_PROGRESS', 'REOPENED'] },
+        },
       }),
       this.prisma.employee.count({ where: { deletedAt: null } }),
       this.prisma.lead.count({ where: { deletedAt: null } }),
@@ -103,7 +106,11 @@ export class AdminService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.auditLog.findMany({
         where,
-        include: { user: { select: { id: true, firstName: true, lastName: true, email: true } } },
+        include: {
+          user: {
+            select: { id: true, firstName: true, lastName: true, email: true },
+          },
+        },
         skip: pagination.skip,
         take: pagination.take,
         orderBy: { createdAt: 'desc' },
@@ -123,7 +130,9 @@ export class AdminService {
   }
 
   async getSystemSetting(key: string) {
-    const setting = await this.prisma.systemSetting.findUnique({ where: { key } });
+    const setting = await this.prisma.systemSetting.findUnique({
+      where: { key },
+    });
 
     if (!setting) {
       throw new NotFoundException('System setting not found');
@@ -140,7 +149,10 @@ export class AdminService {
         value: dto.value as Prisma.InputJsonValue,
         description: dto.description,
       },
-      update: { value: dto.value as Prisma.InputJsonValue, description: dto.description },
+      update: {
+        value: dto.value as Prisma.InputJsonValue,
+        description: dto.description,
+      },
     });
   }
 
@@ -180,7 +192,10 @@ export class AdminService {
 
   async revokeApiKey(id: string): Promise<{ message: string }> {
     await this.ensureApiKeyExists(id);
-    await this.prisma.apiKey.update({ where: { id }, data: { isActive: false } });
+    await this.prisma.apiKey.update({
+      where: { id },
+      data: { isActive: false },
+    });
 
     return { message: 'API key revoked successfully' };
   }
