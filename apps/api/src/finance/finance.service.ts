@@ -1,9 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  InvoiceStatus,
-  PaymentStatus,
-  Prisma,
-} from '@prisma/client';
+import { InvoiceStatus, PaymentStatus, Prisma } from '@prisma/client';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
 import { createPaginatedResult } from '../common/utils/pagination.util';
@@ -36,7 +32,11 @@ export class FinanceService {
   // ---------------------------------------------------------------------
 
   async createInvoice(dto: CreateInvoiceDto) {
-    const { subtotal, total, items } = this.computeTotals(dto.items, dto.tax, dto.discount);
+    const { subtotal, total, items } = this.computeTotals(
+      dto.items,
+      dto.tax,
+      dto.discount,
+    );
 
     return this.prisma.invoice.create({
       data: {
@@ -83,7 +83,12 @@ export class FinanceService {
   async findInvoice(id: string) {
     const invoice = await this.prisma.invoice.findFirst({
       where: { id, deletedAt: null },
-      include: { client: { select: CLIENT_SELECT }, payments: true, project: true, contract: true },
+      include: {
+        client: { select: CLIENT_SELECT },
+        payments: true,
+        project: true,
+        contract: true,
+      },
     });
 
     if (!invoice) {
@@ -99,7 +104,11 @@ export class FinanceService {
     const items = dto.items ?? (existing.items as unknown as InvoiceItemDto[]);
     const tax = dto.tax ?? Number(existing.tax);
     const discount = dto.discount ?? Number(existing.discount);
-    const { subtotal, total, items: computedItems } = this.computeTotals(items, tax, discount);
+    const {
+      subtotal,
+      total,
+      items: computedItems,
+    } = this.computeTotals(items, tax, discount);
 
     return this.prisma.invoice.update({
       where: { id },
@@ -111,7 +120,10 @@ export class FinanceService {
         subtotal: dto.items ? subtotal : undefined,
         tax: dto.tax,
         discount: dto.discount,
-        total: dto.items || dto.tax !== undefined || dto.discount !== undefined ? total : undefined,
+        total:
+          dto.items || dto.tax !== undefined || dto.discount !== undefined
+            ? total
+            : undefined,
         currency: dto.currency,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
         status: dto.status,
@@ -135,7 +147,10 @@ export class FinanceService {
 
   async removeInvoice(id: string): Promise<{ message: string }> {
     await this.ensureInvoiceExists(id);
-    await this.prisma.invoice.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.invoice.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Invoice deleted successfully' };
   }
@@ -145,7 +160,11 @@ export class FinanceService {
   // ---------------------------------------------------------------------
 
   async createQuotation(dto: CreateQuotationDto) {
-    const { subtotal, total, items } = this.computeTotals(dto.items, dto.tax, dto.discount);
+    const { subtotal, total, items } = this.computeTotals(
+      dto.items,
+      dto.tax,
+      dto.discount,
+    );
 
     return this.prisma.quotation.create({
       data: {
@@ -164,7 +183,9 @@ export class FinanceService {
     });
   }
 
-  async findAllQuotations(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllQuotations(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.QuotationWhereInput = { deletedAt: null };
 
     const [data, total] = await this.prisma.$transaction([
@@ -187,7 +208,11 @@ export class FinanceService {
     const items = dto.items ?? (existing.items as unknown as InvoiceItemDto[]);
     const tax = dto.tax ?? Number(existing.tax);
     const discount = dto.discount ?? Number(existing.discount);
-    const { subtotal, total, items: computedItems } = this.computeTotals(items, tax, discount);
+    const {
+      subtotal,
+      total,
+      items: computedItems,
+    } = this.computeTotals(items, tax, discount);
 
     return this.prisma.quotation.update({
       where: { id },
@@ -199,7 +224,10 @@ export class FinanceService {
         subtotal: dto.items ? subtotal : undefined,
         tax: dto.tax,
         discount: dto.discount,
-        total: dto.items || dto.tax !== undefined || dto.discount !== undefined ? total : undefined,
+        total:
+          dto.items || dto.tax !== undefined || dto.discount !== undefined
+            ? total
+            : undefined,
         currency: dto.currency,
         validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
         status: dto.status,
@@ -209,7 +237,10 @@ export class FinanceService {
 
   async removeQuotation(id: string): Promise<{ message: string }> {
     await this.ensureQuotationExists(id);
-    await this.prisma.quotation.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.quotation.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Quotation deleted successfully' };
   }
@@ -234,7 +265,9 @@ export class FinanceService {
   ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.ExpenseWhereInput = {
       ...(filter.projectId ? { projectId: filter.projectId } : {}),
-      ...(filter.isApproved !== undefined ? { isApproved: filter.isApproved } : {}),
+      ...(filter.isApproved !== undefined
+        ? { isApproved: filter.isApproved }
+        : {}),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -259,7 +292,10 @@ export class FinanceService {
 
     return this.prisma.expense.update({
       where: { id },
-      data: { ...dto, expenseDate: dto.expenseDate ? new Date(dto.expenseDate) : undefined },
+      data: {
+        ...dto,
+        expenseDate: dto.expenseDate ? new Date(dto.expenseDate) : undefined,
+      },
     });
   }
 
@@ -287,12 +323,16 @@ export class FinanceService {
     return this.prisma.subscription.create({
       data: {
         ...dto,
-        nextBillingDate: dto.nextBillingDate ? new Date(dto.nextBillingDate) : undefined,
+        nextBillingDate: dto.nextBillingDate
+          ? new Date(dto.nextBillingDate)
+          : undefined,
       },
     });
   }
 
-  async findAllSubscriptions(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllSubscriptions(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.SubscriptionWhereInput = {};
 
     const [data, total] = await this.prisma.$transaction([
@@ -335,7 +375,10 @@ export class FinanceService {
       data: {
         ...dto,
         status: dto.status ?? PaymentStatus.COMPLETED,
-        paidAt: (dto.status ?? PaymentStatus.COMPLETED) === PaymentStatus.COMPLETED ? new Date() : undefined,
+        paidAt:
+          (dto.status ?? PaymentStatus.COMPLETED) === PaymentStatus.COMPLETED
+            ? new Date()
+            : undefined,
       },
     });
 
@@ -347,7 +390,9 @@ export class FinanceService {
         where: { id: invoice.id },
         data: {
           amountPaid,
-          status: isFullyPaid ? InvoiceStatus.PAID : InvoiceStatus.PARTIALLY_PAID,
+          status: isFullyPaid
+            ? InvoiceStatus.PAID
+            : InvoiceStatus.PARTIALLY_PAID,
           paidAt: isFullyPaid ? new Date() : undefined,
         },
       });
@@ -357,7 +402,10 @@ export class FinanceService {
   }
 
   listPaymentsForInvoice(invoiceId: string) {
-    return this.prisma.payment.findMany({ where: { invoiceId }, orderBy: { createdAt: 'desc' } });
+    return this.prisma.payment.findMany({
+      where: { invoiceId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -375,7 +423,9 @@ export class FinanceService {
     });
   }
 
-  async findAllContracts(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllContracts(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.ContractWhereInput = { deletedAt: null };
 
     const [data, total] = await this.prisma.$transaction([
@@ -411,35 +461,47 @@ export class FinanceService {
   // ---------------------------------------------------------------------
 
   async revenueDashboard() {
-    const [paidAgg, outstandingAgg, overdueCount, subscriptionsAgg, invoiceCountByStatus] =
-      await Promise.all([
-        this.prisma.invoice.aggregate({
-          where: { deletedAt: null, status: InvoiceStatus.PAID },
-          _sum: { amountPaid: true },
-        }),
-        this.prisma.invoice.aggregate({
-          where: {
-            deletedAt: null,
-            status: { in: [InvoiceStatus.SENT, InvoiceStatus.PARTIALLY_PAID, InvoiceStatus.OVERDUE] },
+    const [
+      paidAgg,
+      outstandingAgg,
+      overdueCount,
+      subscriptionsAgg,
+      invoiceCountByStatus,
+    ] = await Promise.all([
+      this.prisma.invoice.aggregate({
+        where: { deletedAt: null, status: InvoiceStatus.PAID },
+        _sum: { amountPaid: true },
+      }),
+      this.prisma.invoice.aggregate({
+        where: {
+          deletedAt: null,
+          status: {
+            in: [
+              InvoiceStatus.SENT,
+              InvoiceStatus.PARTIALLY_PAID,
+              InvoiceStatus.OVERDUE,
+            ],
           },
-          _sum: { total: true, amountPaid: true },
-        }),
-        this.prisma.invoice.count({
-          where: { deletedAt: null, status: InvoiceStatus.OVERDUE },
-        }),
-        this.prisma.subscription.aggregate({
-          where: { status: 'ACTIVE' },
-          _sum: { amount: true },
-        }),
-        this.prisma.invoice.groupBy({
-          by: ['status'],
-          where: { deletedAt: null },
-          _count: { _all: true },
-        }),
-      ]);
+        },
+        _sum: { total: true, amountPaid: true },
+      }),
+      this.prisma.invoice.count({
+        where: { deletedAt: null, status: InvoiceStatus.OVERDUE },
+      }),
+      this.prisma.subscription.aggregate({
+        where: { status: 'ACTIVE' },
+        _sum: { amount: true },
+      }),
+      this.prisma.invoice.groupBy({
+        by: ['status'],
+        where: { deletedAt: null },
+        _count: { _all: true },
+      }),
+    ]);
 
     const outstandingTotal =
-      Number(outstandingAgg._sum.total ?? 0) - Number(outstandingAgg._sum.amountPaid ?? 0);
+      Number(outstandingAgg._sum.total ?? 0) -
+      Number(outstandingAgg._sum.amountPaid ?? 0);
 
     return {
       totalRevenue: Number(paidAgg._sum.amountPaid ?? 0),
@@ -456,7 +518,10 @@ export class FinanceService {
   async profitLossSummary(from?: string, to?: string) {
     const dateFilter =
       from || to
-        ? { gte: from ? new Date(from) : undefined, lte: to ? new Date(to) : undefined }
+        ? {
+            gte: from ? new Date(from) : undefined,
+            lte: to ? new Date(to) : undefined,
+          }
         : undefined;
 
     const [revenueAgg, expenseAgg] = await Promise.all([
@@ -469,7 +534,10 @@ export class FinanceService {
         _sum: { amountPaid: true },
       }),
       this.prisma.expense.aggregate({
-        where: { isApproved: true, ...(dateFilter ? { expenseDate: dateFilter } : {}) },
+        where: {
+          isApproved: true,
+          ...(dateFilter ? { expenseDate: dateFilter } : {}),
+        },
         _sum: { amount: true },
       }),
     ]);
@@ -482,7 +550,8 @@ export class FinanceService {
       revenue,
       expenses,
       profit: revenue - expenses,
-      margin: revenue > 0 ? Math.round(((revenue - expenses) / revenue) * 100) : 0,
+      margin:
+        revenue > 0 ? Math.round(((revenue - expenses) / revenue) * 100) : 0,
     };
   }
 
@@ -497,7 +566,9 @@ export class FinanceService {
     }));
 
     const subtotal =
-      Math.round(computedItems.reduce((sum, item) => sum + item.total, 0) * 100) / 100;
+      Math.round(
+        computedItems.reduce((sum, item) => sum + item.total, 0) * 100,
+      ) / 100;
     const total = Math.round((subtotal + tax - discount) * 100) / 100;
 
     return { subtotal, total, items: computedItems };
@@ -511,7 +582,9 @@ export class FinanceService {
   }
 
   private async ensureInvoiceExists(id: string) {
-    const invoice = await this.prisma.invoice.findFirst({ where: { id, deletedAt: null } });
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!invoice) {
       throw new NotFoundException('Invoice not found');
@@ -521,7 +594,9 @@ export class FinanceService {
   }
 
   private async ensureQuotationExists(id: string) {
-    const quotation = await this.prisma.quotation.findFirst({ where: { id, deletedAt: null } });
+    const quotation = await this.prisma.quotation.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!quotation) {
       throw new NotFoundException('Quotation not found');
@@ -531,7 +606,9 @@ export class FinanceService {
   }
 
   private async ensureExists(
-    delegate: { findUnique: (args: { where: { id: string } }) => Promise<unknown> },
+    delegate: {
+      findUnique: (args: { where: { id: string } }) => Promise<unknown>;
+    },
     id: string,
     label: string,
   ): Promise<void> {

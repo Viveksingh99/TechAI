@@ -58,7 +58,8 @@ export class NotificationsGateway
       });
 
       void client.join(this.roomFor(payload.sub));
-      client.data.userId = payload.sub;
+      const socketData = client.data as { userId?: string };
+      socketData.userId = payload.sub;
     } catch {
       this.logger.warn(`Rejecting socket ${client.id}: invalid token`);
       client.disconnect();

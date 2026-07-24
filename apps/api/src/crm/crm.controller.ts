@@ -146,7 +146,10 @@ export class CrmController {
   }
 
   @Get('deals')
-  findAllDeals(@Query() pagination: PaginationDto, @Query('stageId') stageId?: string) {
+  findAllDeals(
+    @Query() pagination: PaginationDto,
+    @Query('stageId') stageId?: string,
+  ) {
     return this.crmService.findAllDeals(pagination, stageId);
   }
 
@@ -231,12 +234,18 @@ export class CrmController {
   // --- Email history (stub) --------------------------------------------------------
 
   @Post('emails')
-  createEmailHistory(@Body() dto: CreateEmailHistoryDto, @CurrentUser('id') userId: string) {
+  createEmailHistory(
+    @Body() dto: CreateEmailHistoryDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.crmService.createEmailHistory(dto, userId);
   }
 
   @Get('emails')
-  listEmailHistory(@Query('leadId') leadId?: string, @Query('contactId') contactId?: string) {
+  listEmailHistory(
+    @Query('leadId') leadId?: string,
+    @Query('contactId') contactId?: string,
+  ) {
     return this.crmService.listEmailHistory({ leadId, contactId });
   }
 

@@ -1,6 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DealStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrmService } from './crm.service';
 
@@ -63,45 +62,66 @@ describe('CrmService', () => {
         convertedDealId: null,
         deletedAt: null,
       });
-      prisma.pipelineStage.findUnique.mockResolvedValue({ id: 'stage-1', name: 'Qualified' });
-      prisma.deal.create.mockResolvedValue({ id: 'deal-1', title: 'Website revamp' });
+      prisma.pipelineStage.findUnique.mockResolvedValue({
+        id: 'stage-1',
+        name: 'Qualified',
+      });
+      prisma.deal.create.mockResolvedValue({
+        id: 'deal-1',
+        title: 'Website revamp',
+      });
       prisma.lead.update.mockResolvedValue({});
 
       const result = await service.convertLeadToDeal('lead-1', 'stage-1');
 
-      expect(prisma.deal.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ title: 'Website revamp', stageId: 'stage-1' }),
-        }),
-      );
-      expect(prisma.lead.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: 'lead-1' },
-          data: expect.objectContaining({ status: 'CONVERTED', convertedDealId: 'deal-1' }),
-        }),
-      );
+      expect(prisma.deal.create).toHaveBeenCalled();
+      const dealCreateArg = prisma.deal.create.mock.calls[0]?.[0] as {
+        data: { title: string; stageId: string };
+      };
+      expect(dealCreateArg.data.title).toBe('Website revamp');
+      expect(dealCreateArg.data.stageId).toBe('stage-1');
+
+      expect(prisma.lead.update).toHaveBeenCalled();
+      const leadUpdateArg = prisma.lead.update.mock.calls[0]?.[0] as {
+        where: { id: string };
+        data: { status: string; convertedDealId: string };
+      };
+      expect(leadUpdateArg.where.id).toBe('lead-1');
+      expect(leadUpdateArg.data.status).toBe('CONVERTED');
+      expect(leadUpdateArg.data.convertedDealId).toBe('deal-1');
       expect(result.id).toBe('deal-1');
     });
 
     it('throws NotFoundException when the lead does not exist', async () => {
       prisma.lead.findFirst.mockResolvedValue(null);
 
-      await expect(service.convertLeadToDeal('missing', 'stage-1')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.convertLeadToDeal('missing', 'stage-1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
   describe('moveDealStage', () => {
     it('moves a deal to a new pipeline stage', async () => {
       prisma.deal.findUnique.mockResolvedValue({ id: 'deal-1' });
-      prisma.pipelineStage.findUnique.mockResolvedValue({ id: 'stage-2', name: 'Negotiation' });
-      prisma.deal.update.mockResolvedValue({ id: 'deal-1', stageId: 'stage-2' });
+      prisma.pipelineStage.findUnique.mockResolvedValue({
+        id: 'stage-2',
+        name: 'Negotiation',
+      });
+      prisma.deal.update.mockResolvedValue({
+        id: 'deal-1',
+        stageId: 'stage-2',
+      });
 
-      const result = await service.moveDealStage('deal-1', { stageId: 'stage-2' });
+      const result = await service.moveDealStage('deal-1', {
+        stageId: 'stage-2',
+      });
 
       expect(prisma.deal.update).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: 'deal-1' }, data: { stageId: 'stage-2' } }),
+        expect.objectContaining({
+          where: { id: 'deal-1' },
+          data: { stageId: 'stage-2' },
+        }),
       );
       expect(result.stageId).toBe('stage-2');
     });
@@ -119,7 +139,9 @@ describe('CrmService', () => {
   describe('salesAnalytics', () => {
     it('aggregates leads, deals, companies and contacts into a summary', async () => {
       prisma.lead.count.mockResolvedValue(10);
-      prisma.lead.groupBy.mockResolvedValue([{ status: 'NEW', _count: { _all: 4 } }]);
+      prisma.lead.groupBy.mockResolvedValue([
+        { status: 'NEW', _count: { _all: 4 } },
+      ]);
       prisma.deal.count
         .mockResolvedValueOnce(5) // total
         .mockResolvedValueOnce(2) // open

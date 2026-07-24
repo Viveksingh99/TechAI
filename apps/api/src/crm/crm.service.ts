@@ -23,15 +23,6 @@ import { UpdateDealDto } from './dto/update-deal.dto';
 import { UpdateFollowUpDto } from './dto/update-follow-up.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 
-const CONTACT_SELECT = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  email: true,
-  phone: true,
-  designation: true,
-} satisfies Prisma.ContactSelect;
-
 const USER_SELECT = {
   id: true,
   firstName: true,
@@ -52,7 +43,9 @@ export class CrmService {
     return this.prisma.company.create({ data: dto });
   }
 
-  async findAllCompanies(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllCompanies(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.CompanyWhereInput = {
       deletedAt: null,
       ...buildSearchFilter(pagination.search, ['name', 'industry', 'city']),
@@ -61,7 +54,9 @@ export class CrmService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.company.findMany({
         where,
-        include: { _count: { select: { contacts: true, leads: true, deals: true } } },
+        include: {
+          _count: { select: { contacts: true, leads: true, deals: true } },
+        },
         skip: pagination.skip,
         take: pagination.take,
         orderBy: { [pagination.sortBy]: pagination.sortOrder },
@@ -97,7 +92,10 @@ export class CrmService {
 
   async removeCompany(id: string): Promise<{ message: string }> {
     await this.ensureExists(this.prisma.company, id, 'Company');
-    await this.prisma.company.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.company.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Company deleted successfully' };
   }
@@ -107,13 +105,22 @@ export class CrmService {
   // ---------------------------------------------------------------------
 
   createContact(dto: CreateContactDto) {
-    return this.prisma.contact.create({ data: dto, include: { company: true } });
+    return this.prisma.contact.create({
+      data: dto,
+      include: { company: true },
+    });
   }
 
-  async findAllContacts(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllContacts(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.ContactWhereInput = {
       deletedAt: null,
-      ...buildSearchFilter(pagination.search, ['firstName', 'lastName', 'email']),
+      ...buildSearchFilter(pagination.search, [
+        'firstName',
+        'lastName',
+        'email',
+      ]),
     };
 
     const [data, total] = await this.prisma.$transaction([
@@ -153,12 +160,19 @@ export class CrmService {
   async updateContact(id: string, dto: UpdateContactDto) {
     await this.ensureExists(this.prisma.contact, id, 'Contact');
 
-    return this.prisma.contact.update({ where: { id }, data: dto, include: { company: true } });
+    return this.prisma.contact.update({
+      where: { id },
+      data: dto,
+      include: { company: true },
+    });
   }
 
   async removeContact(id: string): Promise<{ message: string }> {
     await this.ensureExists(this.prisma.contact, id, 'Contact');
-    await this.prisma.contact.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.contact.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Contact deleted successfully' };
   }
@@ -170,11 +184,17 @@ export class CrmService {
   createLead(dto: CreateLeadDto) {
     return this.prisma.lead.create({
       data: dto,
-      include: { company: true, contact: true, assignedTo: { select: USER_SELECT } },
+      include: {
+        company: true,
+        contact: true,
+        assignedTo: { select: USER_SELECT },
+      },
     });
   }
 
-  async findAllLeads(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllLeads(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.LeadWhereInput = {
       deletedAt: null,
       ...buildSearchFilter(pagination.search, ['title', 'email', 'phone']),
@@ -183,7 +203,11 @@ export class CrmService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.lead.findMany({
         where,
-        include: { company: true, contact: true, assignedTo: { select: USER_SELECT } },
+        include: {
+          company: true,
+          contact: true,
+          assignedTo: { select: USER_SELECT },
+        },
         skip: pagination.skip,
         take: pagination.take,
         orderBy: { [pagination.sortBy]: pagination.sortOrder },
@@ -221,20 +245,29 @@ export class CrmService {
     return this.prisma.lead.update({
       where: { id },
       data: dto,
-      include: { company: true, contact: true, assignedTo: { select: USER_SELECT } },
+      include: {
+        company: true,
+        contact: true,
+        assignedTo: { select: USER_SELECT },
+      },
     });
   }
 
   async removeLead(id: string): Promise<{ message: string }> {
     await this.ensureExists(this.prisma.lead, id, 'Lead');
-    await this.prisma.lead.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.lead.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Lead deleted successfully' };
   }
 
   /** Converts a qualified lead into a deal on the given pipeline stage. */
   async convertLeadToDeal(id: string, stageId: string) {
-    const lead = await this.prisma.lead.findFirst({ where: { id, deletedAt: null } });
+    const lead = await this.prisma.lead.findFirst({
+      where: { id, deletedAt: null },
+    });
 
     if (!lead) {
       throw new NotFoundException('Lead not found');
@@ -244,7 +277,9 @@ export class CrmService {
       throw new NotFoundException('Lead has already been converted');
     }
 
-    const stage = await this.prisma.pipelineStage.findUnique({ where: { id: stageId } });
+    const stage = await this.prisma.pipelineStage.findUnique({
+      where: { id: stageId },
+    });
 
     if (!stage) {
       throw new NotFoundException('Pipeline stage not found');
@@ -288,11 +323,19 @@ export class CrmService {
   createDeal(dto: CreateDealDto) {
     return this.prisma.deal.create({
       data: dto,
-      include: { stage: true, company: true, contact: true, owner: { select: USER_SELECT } },
+      include: {
+        stage: true,
+        company: true,
+        contact: true,
+        owner: { select: USER_SELECT },
+      },
     });
   }
 
-  async findAllDeals(pagination: PaginationDto, stageId?: string): Promise<PaginatedResult<unknown>> {
+  async findAllDeals(
+    pagination: PaginationDto,
+    stageId?: string,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.DealWhereInput = {
       deletedAt: null,
       ...(stageId ? { stageId } : {}),
@@ -302,7 +345,12 @@ export class CrmService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.deal.findMany({
         where,
-        include: { stage: true, company: true, contact: true, owner: { select: USER_SELECT } },
+        include: {
+          stage: true,
+          company: true,
+          contact: true,
+          owner: { select: USER_SELECT },
+        },
         skip: pagination.skip,
         take: pagination.take,
         orderBy: { [pagination.sortBy]: pagination.sortOrder },
@@ -315,7 +363,9 @@ export class CrmService {
 
   /** Groups open deals by pipeline stage for a kanban-style board view. */
   async pipelineBoard() {
-    const stages = await this.prisma.pipelineStage.findMany({ orderBy: { order: 'asc' } });
+    const stages = await this.prisma.pipelineStage.findMany({
+      orderBy: { order: 'asc' },
+    });
 
     const deals = await this.prisma.deal.findMany({
       where: { deletedAt: null, status: DealStatus.OPEN },
@@ -360,14 +410,21 @@ export class CrmService {
     return this.prisma.deal.update({
       where: { id },
       data: dto,
-      include: { stage: true, company: true, contact: true, owner: { select: USER_SELECT } },
+      include: {
+        stage: true,
+        company: true,
+        contact: true,
+        owner: { select: USER_SELECT },
+      },
     });
   }
 
   async moveDealStage(id: string, dto: MoveDealStageDto) {
     await this.ensureExists(this.prisma.deal, id, 'Deal');
 
-    const stage = await this.prisma.pipelineStage.findUnique({ where: { id: dto.stageId } });
+    const stage = await this.prisma.pipelineStage.findUnique({
+      where: { id: dto.stageId },
+    });
 
     if (!stage) {
       throw new NotFoundException('Pipeline stage not found');
@@ -395,7 +452,10 @@ export class CrmService {
 
   async removeDeal(id: string): Promise<{ message: string }> {
     await this.ensureExists(this.prisma.deal, id, 'Deal');
-    await this.prisma.deal.update({ where: { id }, data: { deletedAt: new Date() } });
+    await this.prisma.deal.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     return { message: 'Deal deleted successfully' };
   }
@@ -408,7 +468,9 @@ export class CrmService {
     return this.prisma.followUp.create({ data: dto });
   }
 
-  async findAllFollowUps(pagination: PaginationDto): Promise<PaginatedResult<unknown>> {
+  async findAllFollowUps(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<unknown>> {
     const where: Prisma.FollowUpWhereInput = {};
 
     const [data, total] = await this.prisma.$transaction([
@@ -515,9 +577,15 @@ export class CrmService {
         _count: { _all: true },
       }),
       this.prisma.deal.count({ where: { deletedAt: null } }),
-      this.prisma.deal.count({ where: { deletedAt: null, status: DealStatus.OPEN } }),
-      this.prisma.deal.count({ where: { deletedAt: null, status: DealStatus.WON } }),
-      this.prisma.deal.count({ where: { deletedAt: null, status: DealStatus.LOST } }),
+      this.prisma.deal.count({
+        where: { deletedAt: null, status: DealStatus.OPEN },
+      }),
+      this.prisma.deal.count({
+        where: { deletedAt: null, status: DealStatus.WON },
+      }),
+      this.prisma.deal.count({
+        where: { deletedAt: null, status: DealStatus.LOST },
+      }),
       this.prisma.deal.aggregate({
         where: { deletedAt: null, status: DealStatus.WON },
         _sum: { value: true },
@@ -530,12 +598,18 @@ export class CrmService {
       this.prisma.contact.count({ where: { deletedAt: null } }),
     ]);
 
-    const winRate = totalDeals > 0 ? Math.round((wonDeals / (wonDeals + lostDeals || 1)) * 100) : 0;
+    const winRate =
+      totalDeals > 0
+        ? Math.round((wonDeals / (wonDeals + lostDeals || 1)) * 100)
+        : 0;
 
     return {
       leads: {
         total: totalLeads,
-        byStatus: leadsByStatus.map((row) => ({ status: row.status, count: row._count._all })),
+        byStatus: leadsByStatus.map((row) => ({
+          status: row.status,
+          count: row._count._all,
+        })),
       },
       deals: {
         total: totalDeals,
@@ -556,7 +630,9 @@ export class CrmService {
   // ---------------------------------------------------------------------
 
   private async ensureExists(
-    delegate: { findUnique: (args: { where: { id: string } }) => Promise<unknown> },
+    delegate: {
+      findUnique: (args: { where: { id: string } }) => Promise<unknown>;
+    },
     id: string,
     label: string,
   ): Promise<void> {

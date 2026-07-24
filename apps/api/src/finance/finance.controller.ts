@@ -48,7 +48,10 @@ export class FinanceController {
     @Query('clientId') clientId?: string,
     @Query('status') status?: InvoiceStatus,
   ) {
-    return this.financeService.findAllInvoices(pagination, { clientId, status });
+    return this.financeService.findAllInvoices(pagination, {
+      clientId,
+      status,
+    });
   }
 
   @Get('invoices/:id')
@@ -96,7 +99,10 @@ export class FinanceController {
   // --- Expenses --------------------------------------------------------------
 
   @Post('expenses')
-  createExpense(@Body() dto: CreateExpenseDto, @CurrentUser('id') userId: string) {
+  createExpense(
+    @Body() dto: CreateExpenseDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.financeService.createExpense(dto, userId);
   }
 

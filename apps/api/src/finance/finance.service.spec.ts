@@ -41,7 +41,9 @@ describe('FinanceService', () => {
 
   describe('createInvoice', () => {
     it('computes subtotal and total from line items, tax and discount', async () => {
-      prisma.invoice.create.mockImplementation(({ data }) => Promise.resolve({ id: 'inv-1', ...data }));
+      prisma.invoice.create.mockImplementation(({ data }) =>
+        Promise.resolve({ id: 'inv-1', ...data }),
+      );
 
       const result = await service.createInvoice({
         clientId: 'client-1',
@@ -57,11 +59,13 @@ describe('FinanceService', () => {
       // subtotal = 2*100 + 1*300 = 500; total = 500 + 20 - 10 = 510
       expect(result.subtotal).toBe(500);
       expect(result.total).toBe(510);
-      expect(prisma.invoice.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ clientId: 'client-1', subtotal: 500, total: 510 }),
-        }),
-      );
+      expect(prisma.invoice.create).toHaveBeenCalled();
+      const createArg = prisma.invoice.create.mock.calls[0]?.[0] as {
+        data: { clientId: string; subtotal: number; total: number };
+      };
+      expect(createArg.data.clientId).toBe('client-1');
+      expect(createArg.data.subtotal).toBe(500);
+      expect(createArg.data.total).toBe(510);
     });
   });
 
@@ -72,23 +76,30 @@ describe('FinanceService', () => {
         total: 510,
         deletedAt: null,
       });
-      prisma.invoice.update.mockResolvedValue({ id: 'inv-1', status: InvoiceStatus.PAID });
+      prisma.invoice.update.mockResolvedValue({
+        id: 'inv-1',
+        status: InvoiceStatus.PAID,
+      });
 
       const result = await service.markInvoicePaid('inv-1');
 
-      expect(prisma.invoice.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: 'inv-1' },
-          data: expect.objectContaining({ status: InvoiceStatus.PAID, amountPaid: 510 }),
-        }),
-      );
+      expect(prisma.invoice.update).toHaveBeenCalled();
+      const paidArg = prisma.invoice.update.mock.calls[0]?.[0] as {
+        where: { id: string };
+        data: { status: string; amountPaid: number };
+      };
+      expect(paidArg.where.id).toBe('inv-1');
+      expect(paidArg.data.status).toBe(InvoiceStatus.PAID);
+      expect(paidArg.data.amountPaid).toBe(510);
       expect(result.status).toBe(InvoiceStatus.PAID);
     });
 
     it('throws NotFoundException when the invoice does not exist', async () => {
       prisma.invoice.findFirst.mockResolvedValue(null);
 
-      await expect(service.markInvoicePaid('missing')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.markInvoicePaid('missing')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -110,12 +121,14 @@ describe('FinanceService', () => {
 
       await service.recordPayment({ invoiceId: 'inv-1', amount: 510 });
 
-      expect(prisma.invoice.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: 'inv-1' },
-          data: expect.objectContaining({ amountPaid: 510, status: InvoiceStatus.PAID }),
-        }),
-      );
+      expect(prisma.invoice.update).toHaveBeenCalled();
+      const balanceArg = prisma.invoice.update.mock.calls[0]?.[0] as {
+        where: { id: string };
+        data: { amountPaid: number; status: string };
+      };
+      expect(balanceArg.where.id).toBe('inv-1');
+      expect(balanceArg.data.amountPaid).toBe(510);
+      expect(balanceArg.data.status).toBe(InvoiceStatus.PAID);
     });
 
     it('throws NotFoundException when the invoice does not exist', async () => {

@@ -58,7 +58,10 @@ describe('ProjectsService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProjectsService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        ProjectsService,
+        { provide: PrismaService, useValue: prisma },
+      ],
     }).compile();
 
     service = module.get(ProjectsService);
@@ -75,14 +78,12 @@ describe('ProjectsService', () => {
 
       const result = await service.create({ name: 'TechAI Website Revamp' });
 
-      expect(prisma.project.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            name: 'TechAI Website Revamp',
-            slug: 'techai-website-revamp',
-          }),
-        }),
-      );
+      expect(prisma.project.create).toHaveBeenCalled();
+      const createArg = prisma.project.create.mock.calls[0]?.[0] as {
+        data: { name: string; slug: string };
+      };
+      expect(createArg.data.name).toBe('TechAI Website Revamp');
+      expect(createArg.data.slug).toBe('techai-website-revamp');
       expect(result.name).toBe('TechAI Website Revamp');
     });
   });
@@ -91,7 +92,9 @@ describe('ProjectsService', () => {
     it('throws NotFoundException when the project does not exist', async () => {
       prisma.project.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -99,7 +102,9 @@ describe('ProjectsService', () => {
     it('moves a task to a new kanban status and logs project activity', async () => {
       prisma.project.findFirst.mockResolvedValue(buildProject());
       prisma.task.findFirst.mockResolvedValue(buildTask());
-      prisma.task.update.mockResolvedValue(buildTask({ status: TaskStatus.IN_PROGRESS }));
+      prisma.task.update.mockResolvedValue(
+        buildTask({ status: TaskStatus.IN_PROGRESS }),
+      );
 
       const result = await service.updateTaskStatus(
         'project-1',
@@ -123,7 +128,12 @@ describe('ProjectsService', () => {
       prisma.task.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.updateTaskStatus('project-1', 'missing-task', { status: TaskStatus.DONE }, 'user-1'),
+        service.updateTaskStatus(
+          'project-1',
+          'missing-task',
+          { status: TaskStatus.DONE },
+          'user-1',
+        ),
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });

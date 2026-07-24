@@ -27,10 +27,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/techai?schema=public
       REDIS_URL: redis://localhost:6379
@@ -63,6 +59,7 @@ jobs:
         working-directory: apps/web
     env:
       NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+      NEXT_PUBLIC_USE_MOCK: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
