@@ -144,13 +144,15 @@ docker compose up --build
 
 ### Vercel (frontend only)
 
-In the Vercel project settings:
+**Preferred settings**
 
-1. **Root Directory** → `apps/web` (important — do not use `apps/api`)
-2. **Framework Preset** → Next.js
-3. Environment variables:
-   - `NEXT_PUBLIC_USE_MOCK=true` (frontend-only / no API yet)
-   - `NEXT_PUBLIC_API_URL=https://your-api.example.com/api/v1` (when backend is live; then set mock to `false`)
+1. **Root Directory** → `apps/web`
+2. **Framework** → Next.js  
+3. Env vars:
+   - `NEXT_PUBLIC_USE_MOCK=true`
+   - `NEXT_PUBLIC_API_URL=https://your-api.example.com/api/v1` (optional until backend is live)
+
+If Root Directory is left as the repo root, `vercel.json` at the repo root builds `apps/web` via `npm ci --prefix apps/web`.
 
 Redeploy after changing Root Directory.
 
@@ -158,8 +160,8 @@ Redeploy after changing Root Directory.
 
 Host NestJS separately (Railway, Render, Fly.io, AWS). Vercel is not ideal for the always-on Nest API + WebSockets.
 
-- **Web** → Vercel (`apps/web`, set `NEXT_PUBLIC_API_URL`)
-- **API** → AWS ECS / EC2 / Railway with Postgres + Redis
+- **Web** → Vercel (`apps/web`)
+- **API** → Railway / Render / AWS + Postgres
 - **CI** → GitHub Actions (`.github/workflows/ci.yml`)
 
 ## Security
