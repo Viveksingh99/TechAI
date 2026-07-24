@@ -1,0 +1,18 @@
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+
+export class InvoiceItemDto {
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  quantity: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  unitPrice: number;
+}

@@ -1,0 +1,33 @@
+{
+  "name": "techai-agency",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready Software Agency Management Platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,api -c cyan,magenta \"npm run dev -w @techai/web\" \"npm run start:dev -w @techai/api\"",
+    "dev:web": "npm run dev -w @techai/web",
+    "dev:api": "npm run start:dev -w @techai/api",
+    "build": "npm run build -w @techai/api && npm run build -w @techai/web",
+    "build:web": "npm run build -w @techai/web",
+    "build:api": "npm run build -w @techai/api",
+    "test": "npm run test -w @techai/api && npm run test -w @techai/web --if-present",
+    "test:api": "npm run test -w @techai/api",
+    "lint": "npm run lint -w @techai/api && npm run lint -w @techai/web",
+    "db:generate": "npm run prisma:generate -w @techai/api",
+    "db:migrate": "npm run prisma:migrate -w @techai/api",
+    "db:seed": "npm run prisma:seed -w @techai/api",
+    "db:studio": "npm run prisma:studio -w @techai/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}
