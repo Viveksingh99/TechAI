@@ -43,12 +43,12 @@ export default function CrmOverviewPage() {
   });
 
   const data = analytics.data;
-  const leadsChart = (data?.leads.byStatus ?? []).map((s) => ({ name: titleCase(s.status), value: s.count }));
-  const dealsChart = data
+  const leadsChart = (data?.leads?.byStatus ?? []).map((s) => ({ name: titleCase(s.status), value: s.count }));
+  const dealsChart = data?.deals
     ? [
-        { name: "Open", count: data.deals.open },
-        { name: "Won", count: data.deals.won },
-        { name: "Lost", count: data.deals.lost },
+        { name: "Open", count: data.deals.open ?? 0 },
+        { name: "Won", count: data.deals.won ?? 0 },
+        { name: "Lost", count: data.deals.lost ?? 0 },
       ]
     : [];
 
@@ -63,28 +63,28 @@ export default function CrmOverviewPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total leads"
-          value={analytics.isLoading ? "…" : formatNumber(data?.leads.total ?? 0)}
+          value={analytics.isLoading ? "…" : formatNumber(data?.leads?.total ?? 0)}
           icon={Target}
           loading={analytics.isLoading}
           hint={analytics.isUnavailable ? "API unavailable" : "All-time"}
         />
         <StatCard
           label="Open pipeline value"
-          value={analytics.isLoading ? "…" : formatCurrency(data?.deals.openPipelineValue ?? 0)}
+          value={analytics.isLoading ? "…" : formatCurrency(data?.deals?.openPipelineValue ?? 0)}
           icon={TrendingUp}
           loading={analytics.isLoading}
-          hint={analytics.isUnavailable ? "API unavailable" : `${data?.deals.open ?? 0} open deals`}
+          hint={analytics.isUnavailable ? "API unavailable" : `${data?.deals?.open ?? 0} open deals`}
         />
         <StatCard
           label="Won value"
-          value={analytics.isLoading ? "…" : formatCurrency(data?.deals.wonValue ?? 0)}
+          value={analytics.isLoading ? "…" : formatCurrency(data?.deals?.wonValue ?? 0)}
           icon={Trophy}
           loading={analytics.isLoading}
-          hint={analytics.isUnavailable ? "API unavailable" : `${data?.deals.won ?? 0} deals won`}
+          hint={analytics.isUnavailable ? "API unavailable" : `${data?.deals?.won ?? 0} deals won`}
         />
         <StatCard
           label="Win rate"
-          value={analytics.isLoading ? "…" : `${data?.deals.winRate ?? 0}%`}
+          value={analytics.isLoading ? "…" : `${data?.deals?.winRate ?? 0}%`}
           icon={Percent}
           loading={analytics.isLoading}
           hint={analytics.isUnavailable ? "API unavailable" : "Won vs. closed"}

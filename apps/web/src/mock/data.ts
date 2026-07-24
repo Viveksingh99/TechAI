@@ -1364,20 +1364,37 @@ export const adminSettings = {
 };
 
 export const salesAnalytics = {
-  totalLeads: leads.length,
-  openDeals: deals.filter((d) => d.status === "OPEN").length,
-  pipelineValue: deals.reduce((sum, d) => sum + Number(d.value), 0),
-  wonThisMonth: 1,
-  conversionRate: 28,
-  byStage: pipelineStages.map((stage) => ({
-    stage: stage.name,
-    count: deals.filter((d) => d.stageId === stage.id).length,
-    value: deals.filter((d) => d.stageId === stage.id).reduce((s, d) => s + Number(d.value), 0),
-  })),
+  leads: {
+    total: leads.length,
+    byStatus: Object.entries(
+      leads.reduce<Record<string, number>>((acc, lead) => {
+        acc[lead.status] = (acc[lead.status] ?? 0) + 1;
+        return acc;
+      }, {})
+    ).map(([status, count]) => ({ status, count })),
+  },
+  deals: {
+    total: deals.length,
+    open: deals.filter((d) => d.status === "OPEN").length,
+    won: deals.filter((d) => d.status === "WON").length,
+    lost: deals.filter((d) => d.status === "LOST").length,
+    winRate: 28,
+    wonValue: deals
+      .filter((d) => d.status === "WON")
+      .reduce((sum, d) => sum + Number(d.value), 0),
+    openPipelineValue: deals
+      .filter((d) => d.status === "OPEN")
+      .reduce((sum, d) => sum + Number(d.value), 0),
+  },
+  companies: companies.length,
+  contacts: contacts.length,
 };
 
 export const revenueDashboard = {
   totalRevenue: 245000,
+  outstandingAmount: 59800,
+  overdueInvoices: 1,
+  monthlyRecurringRevenue: 16500,
   outstanding: 59800,
   mrr: 16500,
   expensesThisMonth: 6000,

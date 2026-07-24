@@ -1,0 +1,14 @@
+# Docs
+*.md
+!README.md
+
+# Dependencies / build
+node_modules
+.next
+dist
+coverage
+
+# Env
+.env
+.env.*
+!.env.example

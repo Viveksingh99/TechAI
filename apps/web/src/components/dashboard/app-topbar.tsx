@@ -67,18 +67,16 @@ export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
 
       <div className="flex flex-1 items-center justify-end gap-2">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground/80 transition-colors hover:bg-secondary"
-              aria-label="Notifications"
-            >
-              <Bell className="h-[18px] w-[18px]" />
-              {unreadCount > 0 && (
-                <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
+          <DropdownMenuTrigger
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground/80 transition-colors hover:bg-secondary"
+            aria-label="Notifications"
+          >
+            <Bell className="h-[18px] w-[18px]" />
+            {unreadCount > 0 && (
+              <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-80 p-0" align="end">
             <div className="border-b border-border px-4 py-3">
@@ -117,21 +115,19 @@ export function AppTopbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         <ThemeToggle />
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 transition-colors hover:bg-secondary">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.avatar ?? undefined} alt={getUserDisplayName(user)} />
-                <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
-              </Avatar>
-              <span className="hidden text-left text-sm sm:block">
-                <span className="block max-w-[9rem] truncate font-medium leading-tight text-foreground">
-                  {getUserDisplayName(user) || "Account"}
-                </span>
-                <span className="block text-xs leading-tight text-muted-foreground">
-                  {user ? ROLE_LABELS[user.role] : ""}
-                </span>
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2.5 transition-colors hover:bg-secondary">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user?.avatar ?? undefined} alt={getUserDisplayName(user)} />
+              <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
+            </Avatar>
+            <span className="hidden text-left text-sm sm:block">
+              <span className="block max-w-[9rem] truncate font-medium leading-tight text-foreground">
+                {getUserDisplayName(user) || "Account"}
               </span>
-            </button>
+              <span className="block text-xs leading-tight text-muted-foreground">
+                {user ? ROLE_LABELS[user.role] : ""}
+              </span>
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>

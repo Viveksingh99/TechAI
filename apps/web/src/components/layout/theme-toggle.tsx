@@ -19,7 +19,10 @@ export function ThemeToggle() {
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       className="rounded-full"
     >
-      {mounted && resolvedTheme === "dark" ? (
+      {/* Keep SSR/client markup identical until mounted to avoid hydration mismatch */}
+      {!mounted ? (
+        <span className="h-[18px] w-[18px]" aria-hidden />
+      ) : resolvedTheme === "dark" ? (
         <Sun className="h-[18px] w-[18px]" />
       ) : (
         <Moon className="h-[18px] w-[18px]" />
