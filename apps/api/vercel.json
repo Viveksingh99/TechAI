@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "echo 'ERROR: Vercel Root Directory is set to apps/api. Change it to apps/web in Project Settings → General.' && exit 1",
+  "buildCommand": "echo 'ERROR: Do not deploy NestJS to Vercel. Set Root Directory to apps/web.' && exit 1"
+}
