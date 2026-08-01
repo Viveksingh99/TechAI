@@ -42,14 +42,31 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService<AppConfig, true>);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      // Allow the Next.js app (different port) to read API responses.
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(cookieParser());
 
+  const frontendUrl = config.get('frontendUrl', { infer: true });
+  const localOrigins = [
+    frontendUrl,
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+  ];
+
+  // Allow extra comma-separated origins via CORS_ORIGINS (useful for Vercel previews)
+  const extraOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: [
-      config.get('frontendUrl', { infer: true }),
-      'http://localhost:3000',
-    ],
+    origin: [...new Set([...localOrigins, ...extraOrigins].filter(Boolean))],
     credentials: true,
   });
 

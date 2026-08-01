@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Cookies from "js-cookie";
@@ -12,15 +12,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth-store";
 import { unwrap } from "@/hooks/use-api";
+
+const COUNTRY_CODES = [
+  { code: "+91", label: "India (+91)" },
+  { code: "+1", label: "USA / Canada (+1)" },
+  { code: "+44", label: "UK (+44)" },
+  { code: "+971", label: "UAE (+971)" },
+  { code: "+61", label: "Australia (+61)" },
+  { code: "+65", label: "Singapore (+65)" },
+  { code: "+49", label: "Germany (+49)" },
+  { code: "+33", label: "France (+33)" },
+  { code: "+81", label: "Japan (+81)" },
+  { code: "+86", label: "China (+86)" },
+  { code: "+92", label: "Pakistan (+92)" },
+  { code: "+880", label: "Bangladesh (+880)" },
+  { code: "+94", label: "Sri Lanka (+94)" },
+  { code: "+977", label: "Nepal (+977)" },
+] as const;
 
 const registerSchema = z
   .object({
     firstName: z.string().min(2, "Please enter your first name."),
     lastName: z.string().min(2, "Please enter your last name."),
     email: z.string().email("Please enter a valid email address."),
+    countryCode: z.string().min(2),
     phone: z.string().optional(),
     password: z
       .string()
@@ -34,7 +53,18 @@ const registerSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match.",
     path: ["confirmPassword"],
-  });
+  })
+  .refine(
+    (data) => {
+      const digits = data.phone?.trim().replace(/[\s()-]/g, "") ?? "";
+      if (!digits) return true;
+      return /^\d{6,15}$/.test(digits);
+    },
+    {
+      message: "Enter a valid phone number without the country code.",
+      path: ["phone"],
+    }
+  );
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -44,14 +74,34 @@ export default function RegisterPage() {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      countryCode: "+91",
+      phone: "",
+    },
+  });
+
+  function toE164Phone(countryCode: string, phone?: string): string | undefined {
+    const digits = phone?.trim().replace(/[\s()-]/g, "") ?? "";
+    if (!digits) return undefined;
+    // If user pasted a full international number, keep it
+    if (digits.startsWith("+")) return digits;
+    return `${countryCode}${digits}`;
+  }
 
   async function onSubmit(values: RegisterFormValues) {
     try {
-      const { confirmPassword, ...payload } = values;
+      const { confirmPassword, countryCode, phone, ...rest } = values;
       void confirmPassword;
+      const e164 = toE164Phone(countryCode, phone);
+      const payload = {
+        ...rest,
+        ...(e164 ? { phone: e164 } : {}),
+      };
       const { data: raw } = await api.post("/auth/register", payload);
       const data = unwrap<{
         user: Parameters<typeof setAuth>[0]["user"];
@@ -101,7 +151,36 @@ export default function RegisterPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone (optional)</Label>
-            <Input id="phone" placeholder="+1 555 000 0000" {...register("phone")} />
+            <div className="flex gap-2">
+              <Controller
+                name="countryCode"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-[148px] shrink-0">
+                      <SelectValue placeholder="Code" />
+                    </SelectTrigger>
+                    <SelectContent className="min-w-[220px]">
+                      {COUNTRY_CODES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <Input
+                id="phone"
+                type="tel"
+                inputMode="numeric"
+                placeholder="915....851"
+                className="flex-1"
+                {...register("phone")}
+              />
+            </div>
+            {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+            <p className="text-xs text-muted-foreground">Enter number without country code.</p>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="space-y-2">

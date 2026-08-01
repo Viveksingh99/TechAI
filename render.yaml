@@ -1,0 +1,41 @@
+# Free-tier friendly Render blueprint for the NestJS API.
+# Connect this repo in Render → New → Blueprint.
+# Neon DATABASE_URL should already exist from local setup.
+
+services:
+  - type: web
+    name: techai-api
+    runtime: node
+    plan: free
+    rootDir: apps/api
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && node dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: API_PREFIX
+        value: api/v1
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: 12
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: THROTTLE_TTL
+        value: 60
+      - key: THROTTLE_LIMIT
+        value: 100
+      - key: UPLOADS_DRIVER
+        value: local

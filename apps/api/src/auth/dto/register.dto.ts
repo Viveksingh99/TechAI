@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -6,7 +7,20 @@ import {
   IsStrongPassword,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+
+function normalizePhone(value: unknown): string | undefined {
+  if (value === null || value === undefined) return undefined;
+  const raw = String(value).trim();
+  if (!raw) return undefined;
+
+  const digits = raw.replace(/[\s()-]/g, '');
+  if (/^\d{10}$/.test(digits)) return `+91${digits}`;
+  if (/^91\d{10}$/.test(digits)) return `+${digits}`;
+  if (digits.startsWith('+')) return digits;
+  return raw;
+}
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Please provide a valid email address' })
@@ -37,7 +51,11 @@ export class RegisterDto {
   @MaxLength(50)
   lastName: string;
 
+  @Transform(({ value }) => normalizePhone(value))
   @IsOptional()
-  @IsPhoneNumber(undefined, { message: 'Please provide a valid phone number' })
+  @ValidateIf((_, value) => value !== undefined && value !== null && value !== '')
+  @IsPhoneNumber(undefined, {
+    message: 'Please provide a valid phone number (e.g. +919155242851)',
+  })
   phone?: string;
 }
