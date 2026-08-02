@@ -65,8 +65,36 @@ async function bootstrap(): Promise<void> {
     .map((origin) => origin.trim())
     .filter(Boolean);
 
+  const allowedOrigins = new Set(
+    [...localOrigins, ...extraOrigins].filter(Boolean),
+  );
+
   app.enableCors({
-    origin: [...new Set([...localOrigins, ...extraOrigins].filter(Boolean))],
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      // Non-browser clients (curl, server-to-server) send no Origin
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+      // Allow any Vercel deployment / preview URL
+      try {
+        const host = new URL(origin).hostname;
+        if (host.endsWith('.vercel.app') || host === 'vercel.app') {
+          callback(null, true);
+          return;
+        }
+      } catch {
+        // ignore invalid origin
+      }
+      callback(null, false);
+    },
     credentials: true,
   });
 
