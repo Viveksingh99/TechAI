@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/brand-logo";
 import { useAuthStore, ROLE_LABELS } from "@/lib/auth-store";
 import {
   getPanelForPath,
@@ -20,13 +21,8 @@ function SidebarBody({ activePanel, onNavigate }: { activePanel: PanelKey; onNav
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-5">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-bold">
-            T
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight text-foreground">TechAI</span>
-        </Link>
+      <div className="flex h-[72px] shrink-0 items-center gap-2 border-b border-border px-5">
+        <BrandLogo href="/dashboard" size="md" />
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-4">

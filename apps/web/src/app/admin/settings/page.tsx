@@ -15,7 +15,7 @@ import { api } from "@/lib/api";
 export default function AdminSettingsPage() {
   const [form, setForm] = React.useState({
     companyName: "TechAI",
-    supportEmail: "support@techai.dev",
+    supportEmail: "tech1001ai@gmail.com",
     timezone: "UTC",
     description: "Software engineering & AI product studio.",
   });

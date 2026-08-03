@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -6,14 +6,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="absolute inset-0 bg-mesh-gradient opacity-60" aria-hidden />
       <div className="absolute inset-0 bg-grid-pattern opacity-40" aria-hidden />
 
-      <Link href="/" className="relative z-10 mb-8 flex items-center gap-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-bold">
-          T
-        </span>
-        <span className="font-display text-xl font-bold tracking-tight text-foreground">
-          TechAI
-        </span>
-      </Link>
+      <div className="relative z-10 mb-8">
+        <BrandLogo size="lg" priority />
+      </div>
 
       <div className="relative z-10 w-full max-w-md">{children}</div>
     </div>

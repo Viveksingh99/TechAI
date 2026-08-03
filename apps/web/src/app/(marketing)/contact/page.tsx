@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { PageHero } from "@/components/marketing/page-hero";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { Reveal } from "@/components/marketing/reveal";
+import { COMPANY } from "@/data/company";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -11,9 +12,23 @@ export const metadata: Metadata = {
 };
 
 const contactDetails = [
-  { icon: Mail, label: "Email", value: "hello@techai.dev" },
-  { icon: Phone, label: "Phone", value: "+1 (415) 555-0182" },
-  { icon: MapPin, label: "HQ", value: "San Francisco, CA — Remote-first team" },
+  {
+    icon: Mail,
+    label: "Email",
+    value: COMPANY.email,
+    href: COMPANY.emailHref,
+  },
+  {
+    icon: Phone,
+    label: "Phone",
+    value: COMPANY.phone,
+    href: COMPANY.phoneHref,
+  },
+  {
+    icon: MapPin,
+    label: "Visit Us",
+    value: COMPANY.locationDisplay,
+  },
 ];
 
 export default function ContactPage() {
@@ -29,13 +44,22 @@ export default function ContactPage() {
           <div className="space-y-6">
             {contactDetails.map((detail, idx) => (
               <Reveal key={detail.label} delay={idx * 0.05}>
-                <Card className="flex items-center gap-4 p-5">
+                <Card className="flex items-start gap-4 p-5">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
                     <detail.icon className="h-5 w-5" />
                   </span>
                   <div>
                     <p className="text-xs text-muted-foreground">{detail.label}</p>
-                    <p className="text-sm font-medium text-foreground">{detail.value}</p>
+                    {detail.href ? (
+                      <a
+                        href={detail.href}
+                        className="text-sm font-medium text-foreground hover:text-primary hover:underline"
+                      >
+                        {detail.value}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-medium leading-relaxed text-foreground">{detail.value}</p>
+                    )}
                   </div>
                 </Card>
               </Reveal>

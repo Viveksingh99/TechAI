@@ -6,6 +6,8 @@ import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/brand-logo";
+import { COMPANY } from "@/data/company";
 import { services } from "@/data/services";
 
 const serviceLinks = services.slice(0, 6);
@@ -46,19 +48,28 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr]">
           <div className="max-w-sm">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-bold">
-                T
-              </span>
-              <span className="font-display text-lg font-bold tracking-tight text-foreground">
-                TechAI
-              </span>
-            </Link>
+            <BrandLogo size="md" />
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
               A software agency designing and engineering web, mobile, AI, and
               cloud products for startups and enterprises — from first line
               of code to production scale.
             </p>
+            <div className="mt-5 space-y-1.5 text-sm text-muted-foreground">
+              <p>
+                <a href={COMPANY.emailHref} className="hover:text-foreground hover:underline">
+                  {COMPANY.email}
+                </a>
+              </p>
+              <p>
+                <a href={COMPANY.phoneHref} className="hover:text-foreground hover:underline">
+                  {COMPANY.phone}
+                </a>
+              </p>
+              <p className="leading-relaxed">
+                {COMPANY.addressLine1}, {COMPANY.addressLine2}
+                <span className="block text-xs">{COMPANY.locationNote}</span>
+              </p>
+            </div>
             <div className="mt-6 flex items-center gap-3">
               <SocialLink href="https://twitter.com" label="Twitter">
                 <XIcon className="h-4 w-4" />

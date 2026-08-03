@@ -1356,7 +1356,7 @@ export const feedback = [
 
 export const adminSettings = {
   companyName: "TechAI",
-  supportEmail: "hello@techai.com",
+  supportEmail: "tech1001ai@gmail.com",
   timezone: "Asia/Kolkata",
   currency: "USD",
   invoicePrefix: "INV",

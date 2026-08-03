@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { DynamicIcon } from "@/components/dynamic-icon";
+import { BrandLogo } from "@/components/brand-logo";
 import { services } from "@/data/services";
 
 const navLinks = [
@@ -44,15 +45,8 @@ export function SiteHeader() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/80 backdrop-blur-lg"
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display text-sm font-bold">
-            T
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight text-foreground">
-            TechAI
-          </span>
-        </Link>
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <BrandLogo size="md" priority />
 
         <nav className="hidden items-center gap-1 lg:flex">
           <div

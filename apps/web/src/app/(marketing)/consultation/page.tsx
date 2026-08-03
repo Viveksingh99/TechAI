@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { PageHero } from "@/components/marketing/page-hero";
 import { ConsultationForm } from "@/components/marketing/consultation-form";
 import { Reveal } from "@/components/marketing/reveal";
+import { COMPANY } from "@/data/company";
 
 export const metadata: Metadata = {
   title: "Book a Free Consultation",
@@ -44,8 +45,8 @@ export default function ConsultationPage() {
               <Card className="bg-secondary/40 p-6">
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   Prefer email first?{" "}
-                  <a href="mailto:hello@techai.dev" className="font-medium text-primary hover:underline">
-                    hello@techai.dev
+                  <a href={COMPANY.emailHref} className="font-medium text-primary hover:underline">
+                    {COMPANY.email}
                   </a>
                 </p>
               </Card>

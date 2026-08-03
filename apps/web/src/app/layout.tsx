@@ -40,7 +40,8 @@ export const metadata: Metadata = {
   creator: "TechAI",
   publisher: "TechAI",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/brand/techai-logo.png",
+    apple: "/brand/techai-logo.png",
   },
   openGraph: {
     type: "website",
@@ -50,12 +51,14 @@ export const metadata: Metadata = {
     title: "TechAI — Software Engineering & AI Product Studio",
     description:
       "We design, build, and scale web, mobile, AI, and cloud products for startups and enterprises.",
+    images: [{ url: "/brand/techai-logo.png", width: 700, height: 256, alt: "TechAI" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "TechAI — Software Engineering & AI Product Studio",
     description:
       "We design, build, and scale web, mobile, AI, and cloud products for startups and enterprises.",
+    images: ["/brand/techai-logo.png"],
   },
   robots: {
     index: true,
