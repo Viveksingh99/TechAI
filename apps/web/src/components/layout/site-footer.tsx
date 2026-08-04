@@ -74,7 +74,7 @@ export function SiteFooter() {
               <SocialLink href="https://twitter.com" label="Twitter">
                 <XIcon className="h-4 w-4" />
               </SocialLink>
-              <SocialLink href="https://linkedin.com" label="LinkedIn">
+              <SocialLink href="https://www.linkedin.com/company/techai1/posts/" label="LinkedIn">
                 <LinkedInIcon className="h-4 w-4" />
               </SocialLink>
               <SocialLink href="https://github.com" label="GitHub">
